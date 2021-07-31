@@ -4,5 +4,22 @@
   "main": "index.js",
   "repository": "git@github.com:simonolander/rymden.git",
   "author": "Simon Olander <simon.olander@r2m.se>",
-  "license": "GPL 3.0"
+  "license": "GPL 3.0",
+  "dependencies": {},
+  "devDependencies": {
+    "@parcel/transformer-sass": "2.0.0-beta.2",
+    "concurrently": "^6.2.0",
+    "parcel": "^2.0.0-beta.2",
+    "purescript": "^0.14.2",
+    "purty": "^7.0.0",
+    "spago": "^0.20.3"
+  },
+  "scripts": {
+    "parcel-serve": "parcel serve --port 8080 public/index.html",
+    "build-watch": "spago build --watch",
+    "serve": "concurrently 'yarn build-watch' 'yarn parcel-serve'",
+    "lint": "purty format src --write && purty format test --write",
+    "test": "spago test",
+    "clean": "rm -rf .spago node_modules output dist .parcel-cache .purs-repl yarn-error.log"
+  }
 }
