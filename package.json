@@ -4,7 +4,7 @@
   "main": "index.js",
   "repository": "git@github.com:simonolander/rymden.git",
   "author": "Simon Olander <simon.olander@r2m.se>",
-  "license": "GPL 3.0",
+  "license": "GPL-3.0",
   "dependencies": {},
   "devDependencies": {
     "@parcel/transformer-sass": "2.0.0-beta.2",

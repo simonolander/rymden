@@ -15,6 +15,7 @@ You can edit this file as you like.
   , "halogen"
   , "halogen-formless"
   , "halogen-store"
+  , "halogen-svg-elems"
   , "maybe"
   , "newtype"
   , "parallel"
