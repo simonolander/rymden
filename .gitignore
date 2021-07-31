@@ -1,0 +1,14 @@
+# Dependencies
+.psci_modules
+bower_components
+node_modules
+
+# Generated files
+.psci
+output
+/.purs-repl
+/.idea
+/.spago/
+/.parcel-cache/
+/dist/
+/yarn-error.log
