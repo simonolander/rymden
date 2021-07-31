@@ -39,8 +39,7 @@ component = H.mkComponent { initialState, render, eval }
   initialState = const unit
 
   render :: State -> HH.HTML (H.ComponentSlot Slots m Action) Action
-  render state =
-    HH.slot (Proxy :: _ "board") unit Board.component unit absurd
+  render state = HH.slot (Proxy :: _ "board") unit Board.component unit absurd
 
   eval :: H.HalogenQ query Action input ~> H.HalogenM State Action Slots output m
   eval = H.mkEval $ H.defaultEval

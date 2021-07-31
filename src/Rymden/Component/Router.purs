@@ -60,31 +60,7 @@ component = H.mkComponent { initialState, render, eval }
   render state =
     HH.div
       []
-      [ HH.nav
-          [ classes "navbar" ]
-          [ HH.div
-              [ classes "navbar-brand" ]
-              [ HH.a
-                  [ classes "navbar-item"
-                  , href Home
-                  ]
-                  [ HH.img
-                      [ HP.src "https://snappygoat.com/b/c6ec782d202013e1df10cc9a1fc7e578d865966a" ]
-                  , HH.p [ classes "subtitle ml-2" ] [ HH.text "Rymden" ]
-                  ]
-              ]
-          , HH.div
-              [ classes "navbar-menu" ]
-              [ HH.div
-                  [ classes "navbar-start" ]
-                  [ HH.div
-                      [ classes "navbar-item" ]
-                      [ renderBreadcrumbs state.route
-                      ]
-                  ]
-              ]
-          ]
-      , case state.route of
+      [ case state.route of
           Just Home -> HH.slot (Proxy :: _ "home") unit Home.component unit absurd
           Just Settings -> HH.slot (Proxy :: _ "settings") unit Settings.component unit absurd
           Just Play -> HH.slot (Proxy :: _ "play") unit Play.component unit absurd
