@@ -18,29 +18,43 @@ import Rymden.Data.Position (down)
 import Data.Foldable (minimum)
 import Data.Foldable (maximum)
 import Data.Maybe (fromMaybe)
+import Rymden.Data.GalaxyCenter (GalaxyCenter)
 
 type Board
   = { width :: Int
     , height :: Int
     , borderSegments :: Set BorderSegment
-    , centers :: Array Position
+    , centers :: Array GalaxyCenter
     }
 
 empty :: Int -> Int -> Board
 empty width height = { width, height, borderSegments: Set.empty, centers: [] }
 
 generate :: Int -> Int -> Effect Board
-generate width height = debugFromGalaxyCluster <$> generateCluster width height
+generate width height = fromGalaxyCluster <$> generateCluster width height
+
+toggleBorderSegment :: BorderSegment -> Board -> Board
+toggleBorderSegment borderSegment board =
+  board
+    { borderSegments =
+      if Set.member borderSegment board.borderSegments then
+        Set.delete borderSegment board.borderSegments
+      else
+        Set.insert borderSegment board.borderSegments
+    }
 
 debugFromGalaxyCluster :: GalaxyCluster -> Board
-debugFromGalaxyCluster cluster =
+debugFromGalaxyCluster cluster = (fromGalaxyCluster cluster) { borderSegments = Set.unions $ getGalaxyBorder <$> Array.fromFoldable cluster.galaxies }
+
+fromGalaxyCluster :: GalaxyCluster -> Board
+fromGalaxyCluster cluster =
   { width: cluster.width
   , height: cluster.height
   , centers: getGalaxyCenter <$> Array.fromFoldable cluster.galaxies
-  , borderSegments: Set.unions $ getGalaxyBorder <$> Array.fromFoldable cluster.galaxies
+  , borderSegments: Set.empty
   }
 
-getGalaxyCenter :: Galaxy -> Position
+getGalaxyCenter :: Galaxy -> GalaxyCenter
 getGalaxyCenter galaxy =
   let
     galaxyPositions :: Array Position
@@ -63,8 +77,14 @@ getGalaxyCenter galaxy =
 
     centerColumn :: Int
     centerColumn = maxColumn + minColumn + 1
+
+    position :: Position
+    position = Tuple centerRow centerColumn
+
+    galaxySize :: Int
+    galaxySize = Set.size galaxy
   in
-    Tuple centerRow centerColumn
+  { position, galaxySize }
 
 getGalaxyBorder :: Galaxy -> Set BorderSegment
 getGalaxyBorder galaxy =

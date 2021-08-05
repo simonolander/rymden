@@ -1,13 +1,40 @@
+$cell-color: white
+$border-base-color: #ddd
+$border-base-hover-color: #999
+$border-active-color: #444
+$border-active-hover-color: #666
+
 rect
-  fill: #bbb
   &.cell
+    fill: white
     &.correct
       fill: #bfb
     &.incorrect
       fill: #fbb
+
   &.border
     cursor: pointer
-    &.active
-      fill: #888
+    fill: $border-base-color
     &:hover
-      fill: #444
+      fill: $border-base-hover-color
+    &.active
+      fill: $border-active-color
+      &:hover
+        fill: $border-active-hover-color
+
+.corner
+  fill: $border-base-color
+  &.active
+    fill: $border-active-color
+
+
+svg.board
+  background-color: $border-base-color
+
+body
+  background-color: #22124d
+
+text.galaxy-center
+  font-family: monospace
+  font-size: large
+  font-weight: bold
