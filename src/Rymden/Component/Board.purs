@@ -68,8 +68,8 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
   initialState :: StoreInput -> State
   initialState { context, input } =
     { board: Nothing
-    , width: toNumber context.width
-    , height: toNumber context.height
+    , width: min (toNumber context.width) (toNumber context.height)
+    , height: min (toNumber context.width) (toNumber context.height)
     }
 
   render :: forall slots. State -> HH.HTML (H.ComponentSlot slots m Action) Action
@@ -338,10 +338,11 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
     where
     handleAction = case _ of
       Receive input ->
-        H.modify_ _
-          { width = toNumber input.context.width
-          , height = toNumber input.context.height
-          }
+        H.modify_
+          _
+            { width = min (toNumber input.context.width) (toNumber input.context.height)
+            , height = min (toNumber input.context.width) (toNumber input.context.height)
+            }
       Initialize -> do
         board <- H.liftEffect $ Board.generate width height
         H.modify_ _ { board = Just board }
