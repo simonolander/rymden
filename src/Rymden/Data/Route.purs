@@ -1,7 +1,6 @@
 module Rymden.Data.Route where
 
 import Prelude hiding ((/))
-
 import Data.Generic.Rep (class Generic)
 import Data.Maybe (Maybe(..))
 import Data.Show.Generic (genericShow)

@@ -84,7 +84,7 @@ getGalaxyCenter galaxy =
     galaxySize :: Int
     galaxySize = Set.size galaxy
   in
-  { position, galaxySize }
+    { position, galaxySize }
 
 getGalaxyBorder :: Galaxy -> Set BorderSegment
 getGalaxyBorder galaxy =
