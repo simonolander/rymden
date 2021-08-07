@@ -1,38 +1,26 @@
 module Rymden.Component.Board where
 
 import Prelude
-import Effect.Aff.Class (class MonadAff)
+import Data.Array ((..))
+import Data.Array as Array
+import Data.Int (toNumber)
+import Data.Maybe (Maybe(..))
+import Data.Set as Set
+import Data.Tuple (Tuple(..))
 import Effect.Class (class MonadEffect)
-import Effect.Console (log)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
-import Halogen.HTML.Properties as HP
-import Rymden.Component.Helpers.Property (sclass)
-import Rymden.Data.Route (Route(..))
-import Rymden.Component.Helpers.Property (href)
+import Halogen.Store.Connect (Connected, connect)
 import Halogen.Store.Monad (class MonadStore)
-import Rymden.Data.Store (Store)
-import Halogen.Store.Connect (Connected)
-import Halogen.Store.Connect (connect)
-import Halogen.Store.Select (selectAll)
-import Data.Maybe (Maybe(..))
 import Halogen.Store.Select (selectEq)
-import Rymden.Data.Board (Board)
-import Rymden.Data.Board as Board
-import Halogen.Svg.Elements as SE
 import Halogen.Svg.Attributes as SA
-import Data.Newtype (wrap)
-import Data.Int (toNumber)
-import Data.Array ((..))
-import Data.Array as Array
-import Data.Set as Set
-import Data.Tuple (Tuple(..))
+import Halogen.Svg.Elements as SE
+import Rymden.Component.Helpers.Property (sclass)
+import Rymden.Data.Board (Board, toggleBorderSegment)
+import Rymden.Data.Board as Board
 import Rymden.Data.BorderSegment (BorderSegment)
-import Rymden.Data.Board (toggleBorderSegment)
-import Halogen.Svg.Attributes (Color(..))
-import Data.String as String
-import Rymden.Data.Settings (Settings)
+import Rymden.Data.Store (Store)
 import Rymden.Data.WindowProperties (WindowProperties)
 
 type State

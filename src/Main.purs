@@ -16,7 +16,6 @@ import Routing.Hash (matchesWith)
 import Rymden.Capability.ManageSettings (loadSettingsFromLocalStorage)
 import Web.HTML as Web.HTML
 import Web.HTML.Window as Window
-import Rymden.Data.WindowProperties (WindowProperties)
 
 main :: Effect Unit
 main =

@@ -34,6 +34,7 @@ You can edit this file as you like.
   , "transformers"
   , "tuples"
   , "type-equality"
+  , "web-events"
   , "web-html"
   , "web-storage"
   ]
