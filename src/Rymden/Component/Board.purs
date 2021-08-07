@@ -11,16 +11,13 @@ import Halogen.HTML.Properties as HP
 import Rymden.Component.Helpers.Property (sclass)
 import Rymden.Data.Route (Route(..))
 import Rymden.Component.Helpers.Property (href)
-import Rymden.Content.Campaigns (campaigns)
 import Halogen.Store.Monad (class MonadStore)
 import Rymden.Data.Store (Store)
-import Rymden.Data.Progress (Progress)
 import Halogen.Store.Connect (Connected)
 import Halogen.Store.Connect (connect)
 import Halogen.Store.Select (selectAll)
 import Data.Maybe (Maybe(..))
 import Halogen.Store.Select (selectEq)
-import Rymden.Data.Progress (isLevelCompleted)
 import Rymden.Data.Board (Board)
 import Rymden.Data.Board as Board
 import Halogen.Svg.Elements as SE
@@ -35,6 +32,7 @@ import Rymden.Data.BorderSegment (BorderSegment)
 import Rymden.Data.Board (toggleBorderSegment)
 import Halogen.Svg.Attributes (Color(..))
 import Data.String as String
+import Rymden.Data.Settings (Settings)
 
 type State
   = { board :: Maybe Board
@@ -46,7 +44,7 @@ type Input
   = Unit
 
 type StoreInput
-  = Connected Progress Input
+  = Connected Settings Input
 
 data Action
   = Receive StoreInput
@@ -64,7 +62,7 @@ component ::
   MonadEffect m =>
   MonadStore storeAction Store m =>
   H.Component query Input output m
-component = connect (selectEq _.progress) $ H.mkComponent { initialState, render, eval }
+component = connect (selectEq _.settings) $ H.mkComponent { initialState, render, eval }
   where
   initialState :: StoreInput -> State
   initialState { context, input } =

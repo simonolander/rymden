@@ -14,16 +14,14 @@ import Rymden.Data.Store (Store)
 import Routing.Duplex (parse)
 import Routing.Hash (matchesWith)
 import Rymden.Capability.ManageSettings (loadSettingsFromLocalStorage)
-import Rymden.Capability.ManageProgress (loadProgressFromLocalStorage)
 
 main :: Effect Unit
 main =
   HA.runHalogenAff do
     settings <- H.liftEffect loadSettingsFromLocalStorage
-    progress <- H.liftEffect loadProgressFromLocalStorage
     let
       initialStore :: Store
-      initialStore = { settings, progress }
+      initialStore = { settings }
     rootComponent <- runAppM initialStore Router.component
     body <- HA.awaitBody
     halogenIO <- runUI rootComponent unit body

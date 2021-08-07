@@ -10,7 +10,6 @@ import Effect.Class (class MonadEffect, liftEffect)
 import Halogen.Store.Monad (runStoreT)
 import Rymden.Capability.Navigate (class Navigate)
 import Rymden.Capability.ManageSettings (class ManageSettings)
-import Rymden.Capability.ManageProgress (class ManageProgress)
 import Rymden.Data.Route as Route
 import Rymden.Data.Store (Store)
 import Rymden.Data.Store as Store
@@ -22,10 +21,7 @@ import Safe.Coerce (coerce)
 import Halogen as H
 import Halogen.Store.Monad (class MonadStore, getStore, updateStore)
 import Rymden.Capability.ManageSettings (saveSettingsToLocalStorage)
-import Rymden.Capability.ManageProgress (saveProgressToLocalStorage, saveProgress)
-import Rymden.Data.Progress (isLevelCompleted)
 import Rymden.Data.Store (Action(..))
-import Rymden.Data.Progress (withCompleteLevel)
 
 newtype AppM a
   = AppM (StoreT Store.Action Store Aff a)
@@ -54,12 +50,3 @@ instance navigateAppM :: Navigate AppM where
 
 instance manageSettingsAppM :: ManageSettings AppM where
   saveSettings settings = liftEffect $ saveSettingsToLocalStorage settings
-
-instance manageProgressAppM :: ManageProgress AppM where
-  saveProgress progress = liftEffect $ saveProgressToLocalStorage progress
-  completeLevel levelId = do
-    store <- getStore
-    let
-      progress = withCompleteLevel levelId store.progress
-    updateStore (ReplaceProgress progress)
-    saveProgress progress
