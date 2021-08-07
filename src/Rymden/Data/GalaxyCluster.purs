@@ -9,7 +9,6 @@ import Data.Maybe (Maybe(..))
 import Data.Set (Set)
 import Data.Set as Set
 import Data.Tuple (Tuple(..))
-import Debug (traceM)
 import Effect (Effect)
 import Effect.Random (randomInt)
 import Rymden.Data.Galaxy (Galaxy, GalaxyArm)
@@ -35,7 +34,6 @@ generateCluster width height = do
             row <- 0 .. (height - 1)
             column <- 0 .. (width - 1)
             pure $ Tuple row column
-    traceM (Array.fromFoldable $ Array.fromFoldable <$> galaxies)
     pure $ Set.fromFoldable galaxies
     where
     generateGalaxies' :: Set Position -> Effect (List Galaxy)
