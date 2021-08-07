@@ -12,15 +12,12 @@ import Halogen.HTML.Properties as HP
 import Halogen.HTML.Properties.ARIA as HA
 import Halogen.Store.Monad (class MonadStore)
 import Rymden.Capability.Navigate (class Navigate, navigate)
-import Rymden.Capability.ManageProgress (class ManageProgress)
 import Rymden.Component.Helpers.Property (classes, href)
 import Rymden.Data.Route (Route(..))
 import Rymden.Data.Route as Route
 import Rymden.Data.Store (Store)
 import Rymden.Data.Store as Store
 import Rymden.Page.Home as Home
-import Rymden.Page.Level as Level
-import Rymden.Page.Play as Play
 import Rymden.Page.Settings as Settings
 import Routing.Duplex (parse)
 import Routing.Hash (getHash)
@@ -39,8 +36,6 @@ data Action
 type Slots
   = ( home :: H.Slot (Const Void) Void Unit
     , settings :: H.Slot (Const Void) Void Unit
-    , play :: H.Slot (Const Void) Void Unit
-    , level :: H.Slot (Const Void) Void Unit
     )
 
 component ::
@@ -49,7 +44,6 @@ component ::
   MonadEffect m =>
   MonadStore Store.Action Store m =>
   Navigate m =>
-  ManageProgress m =>
   H.Component Query input output m
 component = H.mkComponent { initialState, render, eval }
   where
@@ -63,8 +57,6 @@ component = H.mkComponent { initialState, render, eval }
       [ case state.route of
           Just Home -> HH.slot (Proxy :: _ "home") unit Home.component unit absurd
           Just Settings -> HH.slot (Proxy :: _ "settings") unit Settings.component unit absurd
-          Just Play -> HH.slot (Proxy :: _ "play") unit Play.component unit absurd
-          Just (Level levelId) -> HH.slot (Proxy :: _ "level") unit Level.component levelId absurd
           Nothing -> HH.text "404 - Not found"
       ]
     where
@@ -83,8 +75,6 @@ component = H.mkComponent { initialState, render, eval }
           case route of
             Just Home -> [ HH.li props [ HH.a [ href Home ] [ HH.text (show Home) ] ] ]
             Just Settings -> renderLinks (Just Home) `snoc` HH.li props [ HH.a [ href Settings ] [ HH.text (show Settings) ] ]
-            Just Play -> renderLinks (Just Home) `snoc` HH.li props [ HH.a [ href Play ] [ HH.text (show Play) ] ]
-            Just (Level id) -> renderLinks (Just Play) `snoc` HH.li props [ HH.a [ href (Level id) ] [ HH.text id ] ]
             Nothing -> renderLinks (Just Home)
 
   eval :: H.HalogenQ Query Action input ~> H.HalogenM State Action Slots output m
