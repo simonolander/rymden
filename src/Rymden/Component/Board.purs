@@ -33,6 +33,7 @@ import Rymden.Data.Board (toggleBorderSegment)
 import Halogen.Svg.Attributes (Color(..))
 import Data.String as String
 import Rymden.Data.Settings (Settings)
+import Rymden.Data.WindowProperties (WindowProperties)
 
 type State
   = { board :: Maybe Board
@@ -44,7 +45,7 @@ type Input
   = Unit
 
 type StoreInput
-  = Connected Settings Input
+  = Connected WindowProperties Input
 
 data Action
   = Receive StoreInput
@@ -52,7 +53,7 @@ data Action
   | ClickedBorder BorderSegment
 
 width :: Int
-width = 5
+width = 10
 
 height :: Int
 height = width
@@ -62,13 +63,13 @@ component ::
   MonadEffect m =>
   MonadStore storeAction Store m =>
   H.Component query Input output m
-component = connect (selectEq _.settings) $ H.mkComponent { initialState, render, eval }
+component = connect (selectEq _.window) $ H.mkComponent { initialState, render, eval }
   where
   initialState :: StoreInput -> State
   initialState { context, input } =
     { board: Nothing
-    , width: toNumber width * 80.0
-    , height: toNumber height * 80.0
+    , width: toNumber context.width
+    , height: toNumber context.height
     }
 
   render :: forall slots. State -> HH.HTML (H.ComponentSlot slots m Action) Action
@@ -166,10 +167,13 @@ component = connect (selectEq _.settings) $ H.mkComponent { initialState, render
 
           offsetLeft :: Number
           offsetLeft = cornerOffsetX c - 0.5
+
           offsetUp :: Number
           offsetUp = cornerOffsetY r - 0.5
+
           offsetRight :: Number
           offsetRight = offsetLeft + borderWidth + 1.0
+
           offsetDown :: Number
           offsetDown = offsetUp + borderHeight + 1.0
         pure
@@ -183,44 +187,44 @@ component = connect (selectEq _.settings) $ H.mkComponent { initialState, render
               ]
           else if hasNeighbourLeft && hasNeighbourUp then
             SE.path
-                [ SA.d
-                    [ SA.m SA.Abs offsetLeft offsetUp
-                    , SA.l SA.Abs offsetRight offsetUp
-                    , SA.l SA.Abs offsetLeft offsetDown
-                    , SA.z
-                    ]
-                , sclass "corner active"
-                ]
+              [ SA.d
+                  [ SA.m SA.Abs offsetLeft offsetUp
+                  , SA.l SA.Abs offsetRight offsetUp
+                  , SA.l SA.Abs offsetLeft offsetDown
+                  , SA.z
+                  ]
+              , sclass "corner active"
+              ]
           else if hasNeighbourUp && hasNeighbourRight then
             SE.path
-                [ SA.d
-                    [ SA.m SA.Abs offsetRight offsetUp
-                    , SA.l SA.Abs offsetRight offsetDown
-                    , SA.l SA.Abs offsetLeft offsetUp
-                    , SA.z
-                    ]
-                , sclass "corner active"
-                ]
+              [ SA.d
+                  [ SA.m SA.Abs offsetRight offsetUp
+                  , SA.l SA.Abs offsetRight offsetDown
+                  , SA.l SA.Abs offsetLeft offsetUp
+                  , SA.z
+                  ]
+              , sclass "corner active"
+              ]
           else if hasNeighbourRight && hasNeighbourDown then
             SE.path
-                [ SA.d
-                    [ SA.m SA.Abs offsetRight offsetDown
-                    , SA.l SA.Abs offsetLeft offsetDown
-                    , SA.l SA.Abs offsetRight offsetUp
-                    , SA.z
-                    ]
-                , sclass "corner active"
-                ]
+              [ SA.d
+                  [ SA.m SA.Abs offsetRight offsetDown
+                  , SA.l SA.Abs offsetLeft offsetDown
+                  , SA.l SA.Abs offsetRight offsetUp
+                  , SA.z
+                  ]
+              , sclass "corner active"
+              ]
           else if hasNeighbourDown && hasNeighbourLeft then
             SE.path
-                [ SA.d
-                    [ SA.m SA.Abs offsetLeft offsetDown
-                    , SA.l SA.Abs offsetLeft offsetUp
-                    , SA.l SA.Abs offsetRight offsetDown
-                    , SA.z
-                    ]
-                , sclass "corner active"
-                ]
+              [ SA.d
+                  [ SA.m SA.Abs offsetLeft offsetDown
+                  , SA.l SA.Abs offsetLeft offsetUp
+                  , SA.l SA.Abs offsetRight offsetDown
+                  , SA.z
+                  ]
+              , sclass "corner active"
+              ]
           else
             HH.text ""
 
@@ -230,8 +234,7 @@ component = connect (selectEq _.settings) $ H.mkComponent { initialState, render
         let
           Tuple r c = center.position
         pure
-          if false
-          then
+          if false then
             SE.circle
               [ SA.r ((borderWidth + borderHeight) / 3.0)
               , SA.cx $ centerX c
@@ -250,34 +253,34 @@ component = connect (selectEq _.settings) $ H.mkComponent { initialState, render
       outerBorders :: Array (HH.HTML (H.ComponentSlot slots m Action) Action)
       outerBorders =
         [ SE.rect
-           [ SA.width borderWidth
-           , SA.height state.height
-           , SA.x 0.0
-           , SA.y 0.0
-           , sclass "corner active"
-           ]
-       , SE.rect
-           [ SA.width state.width
-           , SA.height borderHeight
-           , SA.x 0.0
-           , SA.y 0.0
-           , sclass "corner active"
-           ]
-       , SE.rect
-           [ SA.width borderWidth
-           , SA.height state.height
-           , SA.x (state.width - borderWidth)
-           , SA.y 0.0
-           , sclass "corner active"
-           ]
-       , SE.rect
-           [ SA.width state.width
-           , SA.height borderHeight
-           , SA.x 0.0
-           , SA.y (state.height - borderHeight)
-           , sclass "corner active"
-           ]
-       ]
+            [ SA.width borderWidth
+            , SA.height state.height
+            , SA.x 0.0
+            , SA.y 0.0
+            , sclass "corner active"
+            ]
+        , SE.rect
+            [ SA.width state.width
+            , SA.height borderHeight
+            , SA.x 0.0
+            , SA.y 0.0
+            , sclass "corner active"
+            ]
+        , SE.rect
+            [ SA.width borderWidth
+            , SA.height state.height
+            , SA.x (state.width - borderWidth)
+            , SA.y 0.0
+            , sclass "corner active"
+            ]
+        , SE.rect
+            [ SA.width state.width
+            , SA.height borderHeight
+            , SA.x 0.0
+            , SA.y (state.height - borderHeight)
+            , sclass "corner active"
+            ]
+        ]
 
       borderByCellRatio :: Number
       borderByCellRatio = 0.15
@@ -334,7 +337,11 @@ component = connect (selectEq _.settings) $ H.mkComponent { initialState, render
           }
     where
     handleAction = case _ of
-      Receive input -> H.put $ initialState input
+      Receive input ->
+        H.modify_ _
+          { width = toNumber input.context.width
+          , height = toNumber input.context.height
+          }
       Initialize -> do
         board <- H.liftEffect $ Board.generate width height
         H.modify_ _ { board = Just board }

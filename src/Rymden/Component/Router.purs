@@ -1,16 +1,21 @@
 module Rymden.Component.Router where
 
 import Prelude
+import Data.Array (snoc)
 import Data.Const (Const)
 import Data.Either (hush)
 import Data.Maybe (Maybe(..), fromMaybe)
-import Effect.Class (class MonadEffect)
 import Effect.Aff.Class (class MonadAff)
+import Effect.Class (class MonadEffect)
 import Halogen as H
 import Halogen.HTML as HH
+import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Halogen.HTML.Properties.ARIA as HA
-import Halogen.Store.Monad (class MonadStore)
+import Halogen.Query.Event as HQ
+import Halogen.Store.Monad (class MonadStore, updateStore)
+import Routing.Duplex (parse)
+import Routing.Hash (getHash)
 import Rymden.Capability.Navigate (class Navigate, navigate)
 import Rymden.Component.Helpers.Property (classes, href)
 import Rymden.Data.Route (Route(..))
@@ -19,10 +24,10 @@ import Rymden.Data.Store (Store)
 import Rymden.Data.Store as Store
 import Rymden.Page.Home as Home
 import Rymden.Page.Settings as Settings
-import Routing.Duplex (parse)
-import Routing.Hash (getHash)
 import Type.Proxy (Proxy(..))
-import Data.Array (snoc)
+import Web.Event.Event (EventType(..))
+import Web.HTML as Web.HTML
+import Web.HTML.Window as Window
 
 type State
   = { route :: Maybe Route }
@@ -32,6 +37,7 @@ data Query a
 
 data Action
   = Initialize
+  | Resized
 
 type Slots
   = ( home :: H.Slot (Const Void) Void Unit
@@ -92,8 +98,25 @@ component = H.mkComponent { initialState, render, eval }
     handleAction :: Action -> H.HalogenM State Action Slots output m Unit
     handleAction action = case action of
       Initialize -> do
+        -- Subscribe to window resize events
+        window <- H.liftEffect Web.HTML.window
+        H.subscribe'
+          $ const
+          $ HQ.eventListener
+              (EventType "resize")
+              (Window.toEventTarget window)
+              (Just <<< const Resized)
+        -- Set initial route
         initialRoute <- H.liftEffect $ hush <<< (parse Route.route) <$> getHash
         navigate $ fromMaybe Home initialRoute
+      Resized -> do
+        { width, height } <-
+          H.liftEffect do
+            window <- Web.HTML.window
+            width <- Window.innerWidth window
+            height <- Window.innerHeight window
+            pure { width, height }
+        updateStore $ Store.WindowResized width height
 
     handleQuery :: forall a. Query a -> H.HalogenM State Action Slots output m (Maybe a)
     handleQuery query = case query of
