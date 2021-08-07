@@ -1,7 +1,6 @@
 module Rymden.Component.Router where
 
 import Prelude
-import Data.Array (snoc)
 import Data.Const (Const)
 import Data.Either (hush)
 import Data.Maybe (Maybe(..), fromMaybe)
@@ -9,15 +8,11 @@ import Effect.Aff.Class (class MonadAff)
 import Effect.Class (class MonadEffect)
 import Halogen as H
 import Halogen.HTML as HH
-import Halogen.HTML.Events as HE
-import Halogen.HTML.Properties as HP
-import Halogen.HTML.Properties.ARIA as HA
 import Halogen.Query.Event as HQ
 import Halogen.Store.Monad (class MonadStore, updateStore)
 import Routing.Duplex (parse)
 import Routing.Hash (getHash)
 import Rymden.Capability.Navigate (class Navigate, navigate)
-import Rymden.Component.Helpers.Property (classes, href)
 import Rymden.Data.Route (Route(..))
 import Rymden.Data.Route as Route
 import Rymden.Data.Store (Store)
@@ -65,23 +60,6 @@ component = H.mkComponent { initialState, render, eval }
           Just Settings -> HH.slot (Proxy :: _ "settings") unit Settings.component unit absurd
           Nothing -> HH.text "404 - Not found"
       ]
-    where
-    renderBreadcrumbs maybeRoute =
-      HH.nav
-        [ classes "breadcrumb"
-        , HA.label "breadcrumbs"
-        ]
-        [ HH.ul_ $ renderLinks maybeRoute
-        ]
-      where
-      renderLinks route =
-        let
-          props = if route == maybeRoute then [ classes "is-active" ] else []
-        in
-          case route of
-            Just Home -> [ HH.li props [ HH.a [ href Home ] [ HH.text (show Home) ] ] ]
-            Just Settings -> renderLinks (Just Home) `snoc` HH.li props [ HH.a [ href Settings ] [ HH.text (show Settings) ] ]
-            Nothing -> renderLinks (Just Home)
 
   eval :: H.HalogenQ Query Action input ~> H.HalogenM State Action Slots output m
   eval =
