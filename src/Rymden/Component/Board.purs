@@ -325,12 +325,12 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
           }
     where
     handleAction = case _ of
-      Receive input ->
-        H.modify_
-          _
-            { width = min (toNumber input.context.width) (toNumber input.context.height)
-            , height = min (toNumber input.context.width) (toNumber input.context.height)
-            }
+      Receive input -> pure unit
+--        H.modify_
+--          _
+--            { width = min (toNumber input.context.width) (toNumber input.context.height)
+--            , height = min (toNumber input.context.width) (toNumber input.context.height)
+--            }
       Initialize -> do
         board <- H.liftEffect $ Board.generate width height
         H.modify_ _ { board = Just board }
