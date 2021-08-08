@@ -26,6 +26,7 @@ import Rymden.Data.BoardErrors (BoardErrors)
 import Rymden.Data.Board (checkSolution)
 import Data.Tuple (fst)
 import Data.Tuple (snd)
+import Rymden.Data.Position (Position)
 
 type State
   = { board :: Maybe Board
@@ -90,16 +91,28 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
 
       cells :: Array (HH.HTML (H.ComponentSlot slots m Action) Action)
       cells = do
-        r <- 0 .. (board.height - 1)
-        c <- 0 .. (board.width - 1)
-        pure
-          $ SE.rect
-              [ SA.width cellWidth
-              , SA.height cellHeight
-              , SA.x $ cellOffsetX c
-              , SA.y $ cellOffsetY r
-              , sclass "cell"
-              ]
+        row <- 0 .. (board.height - 1)
+        column <- 0 .. (board.width - 1)
+        pure $ renderCell row column
+        where
+        renderCell row column =
+          SE.rect
+            [ SA.width cellWidth
+            , SA.height cellHeight
+            , SA.x $ cellOffsetX column
+            , SA.y $ cellOffsetY row
+            , sclass classes
+            ]
+          where
+          position :: Position
+          position = Tuple row column
+
+          classes :: String
+          classes =
+            if Set.member position boardErrors.cellsInComponentsWithoutCenter then
+              "cell missing-center"
+            else
+              "cell"
 
       horizontalBorders :: Array (HH.HTML (H.ComponentSlot slots m Action) Action)
       horizontalBorders = do

@@ -5,6 +5,7 @@ import Data.Array ((..))
 import Data.Array as Array
 import Data.Foldable (maximum, minimum)
 import Data.Map as Map
+import Data.Map (Map)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Set (Set)
 import Data.Set as Set
@@ -18,6 +19,7 @@ import Rymden.Data.GalaxyCluster (GalaxyCluster, generateCluster)
 import Rymden.Data.Position (Position, down, left, right, up)
 import Rymden.Helper.Foldable (count)
 import Rymden.Helper.Foldable ((<$$>), (<$$$>))
+import Rymden.Helper.Foldable (inverseMap)
 
 type Board
   = { width :: Int
@@ -170,6 +172,23 @@ checkSolution board =
     getConnectedComponentByPosition :: Position -> Maybe (Set Position)
     getConnectedComponentByPosition position = Array.find (Set.member position) $ Array.fromFoldable connectedComponents
 
+    componentByCenterMap :: Map Position (Set Position)
+    componentByCenterMap =
+      board.centers
+        <#> _.position
+        <#> ( \(Tuple r c) -> case getConnectedComponentByPosition (Tuple (r / 2) (c / 2)) of
+              Just component -> Just (Tuple (Tuple r c) component)
+              Nothing -> Nothing
+          )
+        # Array.catMaybes
+        # Map.fromFoldable
+
+    centersByComponentMap :: Map (Set Position) (Set Position)
+    centersByComponentMap = inverseMap componentByCenterMap
+
+    componentsWithoutCenters :: Set (Set Position)
+    componentsWithoutCenters = Set.difference connectedComponents (Map.keys centersByComponentMap)
+
     incorrectGalaxySizes :: Set Position
     incorrectGalaxySizes = Set.fromFoldable $ _.position <$> Array.filter hasIncorrectGalaxySize board.centers
       where
@@ -182,9 +201,13 @@ checkSolution board =
           case getConnectedComponentByPosition position of
             Just component -> Set.size component /= center.galaxySize
             Nothing -> false
+
+    cellsInComponentsWithoutCenter :: Set Position
+    cellsInComponentsWithoutCenter = Set.unions componentsWithoutCenters
   in
     { danglingBorders
-    , incorrectGalaxySizes: incorrectGalaxySizes
+    , incorrectGalaxySizes
+    , cellsInComponentsWithoutCenter
     }
 
 debugFromGalaxyCluster :: GalaxyCluster -> Board
