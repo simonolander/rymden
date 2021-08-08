@@ -24,6 +24,8 @@ import Rymden.Data.Store (Store)
 import Rymden.Data.WindowProperties (WindowProperties)
 import Rymden.Data.BoardErrors (BoardErrors)
 import Rymden.Data.Board (checkSolution)
+import Data.Tuple (fst)
+import Data.Tuple (snd)
 
 type State
   = { board :: Maybe Board
@@ -119,13 +121,13 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
             borderSegment :: BorderSegment
             borderSegment = Tuple (Tuple row column) (Tuple row (column + 1))
           in
-          if Set.member borderSegment board.borderSegments then
-            if Set.member borderSegment boardErrors.danglingBorders then
-              "border active dangling"
+            if Set.member borderSegment board.borderSegments then
+              if Set.member borderSegment boardErrors.danglingBorders then
+                "border active dangling"
+              else
+                "border active"
             else
-              "border active"
-          else
-            "border"
+              "border"
 
       verticalBorders :: Array (HH.HTML (H.ComponentSlot slots m Action) Action)
       verticalBorders = do
@@ -147,13 +149,13 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
             borderSegment :: BorderSegment
             borderSegment = Tuple (Tuple row column) (Tuple (row + 1) column)
           in
-          if Set.member borderSegment board.borderSegments then
-            if Set.member borderSegment boardErrors.danglingBorders then
-              "border active dangling"
+            if Set.member borderSegment board.borderSegments then
+              if Set.member borderSegment boardErrors.danglingBorders then
+                "border active dangling"
+              else
+                "border active"
             else
-              "border active"
-          else
-            "border"
+              "border"
 
       corners :: Array (HH.HTML (H.ComponentSlot slots m Action) Action)
       corners = do
@@ -236,26 +238,30 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
             HH.text ""
 
       centers :: Array (HH.HTML (H.ComponentSlot slots m Action) Action)
-      centers = do
-        center <- board.centers
-        let
-          Tuple r c = center.position
-        pure
-          if false then
-            SE.circle
-              [ SA.r ((borderWidth + borderHeight) / 3.0)
-              , SA.cx $ centerX c
-              , SA.cy $ centerY r
-              ]
-          else
-            SE.text
-              [ SA.x $ centerX c
-              , SA.y $ centerY r
-              , SA.text_anchor SA.AnchorMiddle
-              , SA.dominant_baseline SA.BaselineMiddle
-              , sclass "galaxy-center"
-              ]
-              [ HH.text $ show center.galaxySize ]
+      centers = renderGalaxyCenter <$> board.centers
+        where
+        renderGalaxyCenter center =
+          SE.text
+            [ SA.x $ centerX column
+            , SA.y $ centerY row
+            , SA.text_anchor SA.AnchorMiddle
+            , SA.dominant_baseline SA.BaselineMiddle
+            , sclass classes
+            ]
+            [ HH.text $ show center.galaxySize ]
+          where
+          row :: Int
+          row = fst center.position
+
+          column :: Int
+          column = snd center.position
+
+          classes :: String
+          classes =
+            if Set.member center.position boardErrors.incorrectGalaxySizes then
+              "galaxy-center incorrect-size"
+            else
+              "galaxy-center"
 
       outerBorders :: Array (HH.HTML (H.ComponentSlot slots m Action) Action)
       outerBorders =
