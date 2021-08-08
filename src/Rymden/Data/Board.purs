@@ -18,7 +18,10 @@ import Rymden.Data.Position (down)
 import Data.Foldable (minimum)
 import Data.Foldable (maximum)
 import Data.Maybe (fromMaybe)
+import Data.Map as Map
 import Rymden.Data.GalaxyCenter (GalaxyCenter)
+import Rymden.Data.BoardErrors (BoardErrors)
+import Rymden.Helper.Foldable (count)
 
 type Board
   = { width :: Int
@@ -41,6 +44,28 @@ toggleBorderSegment borderSegment board =
         Set.delete borderSegment board.borderSegments
       else
         Set.insert borderSegment board.borderSegments
+    }
+
+checkSolution :: Board -> BoardErrors
+checkSolution board =
+  let
+    danglingPositions :: Set Position
+    danglingPositions =
+      board.borderSegments
+      # Array.fromFoldable
+      <#> (\ (Tuple p1 p2) -> [p1, p2])
+      # join
+      # count
+      # Map.filterWithKey (\ (Tuple row col) n -> n == 1 && row > 0 && col > 0 && row < board.height && col < board.width)
+      # Map.keys
+
+    isBorderDangling :: BorderSegment -> Boolean
+    isBorderDangling (Tuple p1 p2) = Set.member p1 danglingPositions || Set.member p2 danglingPositions
+
+    danglingBorders :: Set BorderSegment
+    danglingBorders = Set.filter isBorderDangling board.borderSegments
+  in
+    { danglingBorders
     }
 
 debugFromGalaxyCluster :: GalaxyCluster -> Board
