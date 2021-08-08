@@ -22,6 +22,8 @@ import Rymden.Data.Board as Board
 import Rymden.Data.BorderSegment (BorderSegment)
 import Rymden.Data.Store (Store)
 import Rymden.Data.WindowProperties (WindowProperties)
+import Rymden.Data.BoardErrors (BoardErrors)
+import Rymden.Data.Board (checkSolution)
 
 type State
   = { board :: Maybe Board
@@ -81,6 +83,9 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
             , centers
             ]
       where
+      boardErrors :: BoardErrors
+      boardErrors = checkSolution board
+
       cells :: Array (HH.HTML (H.ComponentSlot slots m Action) Action)
       cells = do
         r <- 0 .. (board.height - 1)
@@ -110,8 +115,15 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
         where
         classes :: Int -> Int -> String
         classes row column =
-          if Set.member (Tuple (Tuple row column) (Tuple row (column + 1))) board.borderSegments then
-            "border active"
+          let
+            borderSegment :: BorderSegment
+            borderSegment = Tuple (Tuple row column) (Tuple row (column + 1))
+          in
+          if Set.member borderSegment board.borderSegments then
+            if Set.member borderSegment boardErrors.danglingBorders then
+              "border active dangling"
+            else
+              "border active"
           else
             "border"
 
@@ -131,8 +143,15 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
         where
         classes :: Int -> Int -> String
         classes row column =
-          if Set.member (Tuple (Tuple row column) (Tuple (row + 1) column)) board.borderSegments then
-            "border active"
+          let
+            borderSegment :: BorderSegment
+            borderSegment = Tuple (Tuple row column) (Tuple (row + 1) column)
+          in
+          if Set.member borderSegment board.borderSegments then
+            if Set.member borderSegment boardErrors.danglingBorders then
+              "border active dangling"
+            else
+              "border active"
           else
             "border"
 
@@ -326,11 +345,11 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
     where
     handleAction = case _ of
       Receive input -> pure unit
---        H.modify_
---          _
---            { width = min (toNumber input.context.width) (toNumber input.context.height)
---            , height = min (toNumber input.context.width) (toNumber input.context.height)
---            }
+      --        H.modify_
+      --          _
+      --            { width = min (toNumber input.context.width) (toNumber input.context.height)
+      --            , height = min (toNumber input.context.width) (toNumber input.context.height)
+      --            }
       Initialize -> do
         board <- H.liftEffect $ Board.generate width height
         H.modify_ _ { board = Just board }
