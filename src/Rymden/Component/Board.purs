@@ -6,7 +6,8 @@ import Data.Array as Array
 import Data.Int (toNumber)
 import Data.Maybe (Maybe(..))
 import Data.Set as Set
-import Data.Tuple (Tuple(..))
+import Data.String as String
+import Data.Tuple (Tuple(..), fst, snd)
 import Effect.Class (class MonadEffect)
 import Halogen as H
 import Halogen.HTML as HH
@@ -17,16 +18,13 @@ import Halogen.Store.Select (selectEq)
 import Halogen.Svg.Attributes as SA
 import Halogen.Svg.Elements as SE
 import Rymden.Component.Helpers.Property (sclass)
-import Rymden.Data.Board (Board, toggleBorderSegment)
+import Rymden.Data.Board (Board, checkSolution, toggleBorderSegment)
 import Rymden.Data.Board as Board
+import Rymden.Data.BoardErrors (BoardErrors)
 import Rymden.Data.BorderSegment (BorderSegment)
+import Rymden.Data.Position (Position)
 import Rymden.Data.Store (Store)
 import Rymden.Data.WindowProperties (WindowProperties)
-import Rymden.Data.BoardErrors (BoardErrors)
-import Rymden.Data.Board (checkSolution)
-import Data.Tuple (fst)
-import Data.Tuple (snd)
-import Rymden.Data.Position (Position)
 
 type State
   = { board :: Maybe Board
@@ -83,6 +81,7 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
             , cells
             , horizontalBorders
             , verticalBorders
+            , asymetricCenterIndicators
             , centers
             ]
       where
@@ -109,10 +108,19 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
 
           classes :: String
           classes =
-            if Set.member position boardErrors.cellsInComponentsWithoutCenter then
-              "cell missing-center"
-            else
-              "cell"
+            let
+              missingCenterClass :: Maybe String
+              missingCenterClass =
+                if Set.member position boardErrors.cellsInComponentsWithoutCenter then
+                  Just "missing-center"
+                else
+                  Nothing
+            in
+              String.joinWith " "
+                $ Array.catMaybes
+                    [ Just "cell"
+                    , missingCenterClass
+                    ]
 
       horizontalBorders :: Array (HH.HTML (H.ComponentSlot slots m Action) Action)
       horizontalBorders = do
@@ -271,10 +279,30 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
 
           classes :: String
           classes =
-            if Set.member center.position boardErrors.incorrectGalaxySizes then
-              "galaxy-center incorrect-size"
-            else
-              "galaxy-center"
+            let
+              incorrectSizeClass :: Maybe String
+              incorrectSizeClass =
+                if Set.member center.position boardErrors.incorrectGalaxySizes then
+                  Just "incorrect-size"
+                else
+                  Nothing
+            in
+              String.joinWith " "
+                $ Array.catMaybes
+                    [ Just "galaxy-center"
+                    , incorrectSizeClass
+                    ]
+
+      asymetricCenterIndicators :: Array (HH.HTML (H.ComponentSlot slots m Action) Action)
+      asymetricCenterIndicators = renderAssymetricCenterIndicator <$> Array.fromFoldable boardErrors.asymmetricCenters
+        where
+        renderAssymetricCenterIndicator center =
+          SE.circle
+            [ SA.cx $ centerX $ snd center
+            , SA.cy $ centerY $ fst center
+            , SA.r $ (cellWidth + cellHeight) / 8.0
+            , sclass "asymmetric-center"
+            ]
 
       outerBorders :: Array (HH.HTML (H.ComponentSlot slots m Action) Action)
       outerBorders =

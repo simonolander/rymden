@@ -9,4 +9,5 @@ type BoardErrors
   = { danglingBorders :: Set BorderSegment
     , incorrectGalaxySizes :: Set Position
     , cellsInComponentsWithoutCenter :: Set Position
+    , asymmetricCenters :: Set Position
     }
