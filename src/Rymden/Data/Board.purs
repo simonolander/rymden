@@ -20,6 +20,8 @@ import Rymden.Data.Position (Position, down, left, right, up)
 import Rymden.Helper.Foldable (count)
 import Rymden.Helper.Foldable ((<$$>), (<$$$>))
 import Rymden.Helper.Foldable (inverseMap)
+import Debug (spyWith)
+import Debug (spy)
 
 type Board
   = { width :: Int
@@ -204,10 +206,29 @@ checkSolution board =
 
     cellsInComponentsWithoutCenter :: Set Position
     cellsInComponentsWithoutCenter = Set.unions componentsWithoutCenters
+
+    asymmetricCenters :: Set Position
+    asymmetricCenters = Set.fromFoldable $ Array.filter isAsymmetrical $ _.position <$> board.centers
+      where
+      isAsymmetrical center = case Map.lookup center componentByCenterMap of
+        Just component ->
+          let
+            cr :: Int
+            cr = fst center
+
+            cc :: Int
+            cc = snd center
+
+            reflectCell :: Position -> Position
+            reflectCell (Tuple r c) = Tuple (cr - r - 1) (cc - c - 1)
+          in
+            Set.map reflectCell component /= component
+        Nothing -> false
   in
     { danglingBorders
     , incorrectGalaxySizes
     , cellsInComponentsWithoutCenter
+    , asymmetricCenters
     }
 
 debugFromGalaxyCluster :: GalaxyCluster -> Board
