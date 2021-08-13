@@ -9,15 +9,17 @@ import Type.Proxy (Proxy(..))
 import Rymden.Component.Board as Board
 import Halogen.Store.Monad (class MonadStore)
 import Rymden.Data.Store (Store)
+import Debug (spy)
 
 type State
-  = Unit
+  = { solved :: Boolean
+    }
 
-type Action
-  = Void
+data Action
+  = ReceiveBoardOutput Board.Output
 
 type Slots
-  = ( board :: H.Slot (Const Void) Void Unit
+  = ( board :: H.Slot (Const Void) Board.Output Unit
     )
 
 component ::
@@ -28,10 +30,24 @@ component ::
 component = H.mkComponent { initialState, render, eval }
   where
   initialState :: input -> State
-  initialState = const unit
+  initialState = const { solved: false }
 
   render :: State -> HH.HTML (H.ComponentSlot Slots m Action) Action
-  render _state = HH.slot (Proxy :: _ "board") unit Board.component unit absurd
+  render _state =
+    HH.div
+      []
+      [ HH.slot (Proxy :: _ "board") unit Board.component unit ReceiveBoardOutput
+      , HH.div_
+          [ HH.button [] [ HH.text "Verify" ]
+          ]
+      ]
 
   eval :: H.HalogenQ query Action input ~> H.HalogenM State Action Slots output m
-  eval = H.mkEval $ H.defaultEval
+  eval =
+    H.mkEval
+      $ H.defaultEval
+          { handleAction = handleAction }
+    where
+    handleAction :: Action -> H.HalogenM State Action Slots output m Unit
+    handleAction = case _ of
+      ReceiveBoardOutput (Board.Solved solved) -> H.modify_ _ { solved = spy "solved" solved }

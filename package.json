@@ -17,6 +17,7 @@
   "scripts": {
     "parcel-serve": "parcel serve --port 8080 public/index.html",
     "build-watch": "spago build --watch",
+    "build": "spago build",
     "serve": "concurrently 'yarn build-watch' 'yarn parcel-serve'",
     "lint": "purty format src --write && purty format test --write",
     "test": "spago test",
