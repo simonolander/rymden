@@ -21,6 +21,7 @@ import Rymden.Component.Helpers.Property (sclass)
 import Rymden.Data.Board (Board, checkSolution, toggleBorderSegment)
 import Rymden.Data.Board as Board
 import Rymden.Data.BoardErrors (BoardErrors)
+import Rymden.Data.BoardErrors as BoardErrors
 import Rymden.Data.BorderSegment (BorderSegment)
 import Rymden.Data.Position (Position)
 import Rymden.Data.Store (Store)
@@ -30,6 +31,7 @@ type State
   = { board :: Maybe Board
     , width :: Number
     , height :: Number
+    , highlightErrors :: Boolean
     }
 
 type Input
@@ -61,6 +63,7 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
     { board: Nothing
     , width: min (toNumber context.width) (toNumber context.height)
     , height: min (toNumber context.width) (toNumber context.height)
+    , highlightErrors: false
     }
 
   render :: forall slots. State -> HH.HTML (H.ComponentSlot slots m Action) Action
@@ -86,7 +89,12 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
             ]
       where
       boardErrors :: BoardErrors
-      boardErrors = checkSolution board
+      boardErrors =
+        if state.highlightErrors
+        then
+          checkSolution board
+        else
+          BoardErrors.empty
 
       cells :: Array (HH.HTML (H.ComponentSlot slots m Action) Action)
       cells = do
