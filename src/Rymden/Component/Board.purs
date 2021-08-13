@@ -45,17 +45,20 @@ data Action
   | Initialize
   | ClickedBorder BorderSegment
 
+data Output
+  = Solved Boolean
+
 width :: Int
-width = 10
+width = 2
 
 height :: Int
 height = width
 
 component ::
-  forall query output storeAction m.
+  forall query storeAction m.
   MonadEffect m =>
   MonadStore storeAction Store m =>
-  H.Component query Input output m
+  H.Component query Input Output m
 component = connect (selectEq _.window) $ H.mkComponent { initialState, render, eval }
   where
   initialState :: StoreInput -> State
@@ -69,7 +72,7 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
   render :: forall slots. State -> HH.HTML (H.ComponentSlot slots m Action) Action
   render state = case state.board of
     Just board -> renderBoard board
-    Nothing -> HH.text "loading"
+    Nothing -> HH.div_ [ HH.text "Loading..." ]
     where
     renderBoard :: Board -> HH.HTML (H.ComponentSlot slots m Action) Action
     renderBoard board =
@@ -90,8 +93,7 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
       where
       boardErrors :: BoardErrors
       boardErrors =
-        if state.highlightErrors
-        then
+        if state.highlightErrors then
           checkSolution board
         else
           BoardErrors.empty
@@ -389,7 +391,7 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
       centerY :: Int -> Number
       centerY row = (borderHeight + toNumber row * (borderHeight + cellHeight)) / 2.0
 
-  eval :: forall slots. H.HalogenQ query Action StoreInput ~> H.HalogenM State Action slots output m
+  eval :: forall slots. H.HalogenQ query Action StoreInput ~> H.HalogenM State Action slots Output m
   eval =
     H.mkEval
       $ H.defaultEval
@@ -408,7 +410,16 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
       Initialize -> do
         board <- H.liftEffect $ Board.generate width height
         H.modify_ _ { board = Just board }
+        when (not BoardErrors.hasErrors $ checkSolution board) do
+          H.raise $ Solved true
       ClickedBorder borderSegment -> do
-        H.modify_ \state -> case state.board of
-          Just board -> state { board = Just $ toggleBorderSegment borderSegment board }
-          Nothing -> state
+        maybeBoard <- H.gets _.board
+        case maybeBoard of
+          Just oldBoard -> do
+            let
+              newBoard = toggleBorderSegment borderSegment oldBoard
+
+              boardErrors = checkSolution newBoard
+            H.modify_ _ { board = Just newBoard }
+            H.raise $ Solved $ not BoardErrors.hasErrors boardErrors
+          Nothing -> pure unit
