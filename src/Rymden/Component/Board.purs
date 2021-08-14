@@ -40,19 +40,21 @@ data Action
   = Initialize
   | ClickedBorder BorderSegment
 
+data Query a
+  = HighlightErrors Boolean a
+  | Undo a
+  | Redo a
+
 data Output
   = Solved Boolean
 
 width :: Int
-width = 2
+width = 10
 
 height :: Int
 height = width
 
-component ::
-  forall query storeAction m.
-  MonadEffect m =>
-  H.Component query Input Output m
+component :: forall m. MonadEffect m => H.Component Query Input Output m
 component = H.mkComponent { initialState, render, eval }
   where
   initialState :: Input -> State
@@ -385,11 +387,12 @@ component = H.mkComponent { initialState, render, eval }
       centerY :: Int -> Number
       centerY row = (borderHeight + toNumber row * (borderHeight + cellHeight)) / 2.0
 
-  eval :: forall slots. H.HalogenQ query Action Input ~> H.HalogenM State Action slots Output m
+  eval :: forall slots. H.HalogenQ Query Action Input ~> H.HalogenM State Action slots Output m
   eval =
     H.mkEval
       $ H.defaultEval
           { handleAction = handleAction
+          , handleQuery = handleQuery
           , initialize = Just Initialize
           }
     where
@@ -407,6 +410,20 @@ component = H.mkComponent { initialState, render, eval }
               newBoard = toggleBorderSegment borderSegment oldBoard
 
               boardErrors = checkSolution newBoard
-            H.modify_ _ { board = Just newBoard }
+            H.modify_
+              _
+                { board = Just newBoard
+                , highlightErrors = false
+                }
             H.raise $ Solved $ not BoardErrors.hasErrors boardErrors
           Nothing -> pure unit
+
+    handleQuery :: forall a. Query a -> H.HalogenM State Action slots Output m (Maybe a)
+    handleQuery = case _ of
+      HighlightErrors highlightErrors a -> do
+        H.modify_ _ { highlightErrors = highlightErrors }
+        pure $ Just a
+      Undo a -> do
+        pure $ Just a
+      Redo a -> do
+        pure $ Just a
