@@ -12,9 +12,6 @@ import Effect.Class (class MonadEffect)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
-import Halogen.Store.Connect (Connected, connect)
-import Halogen.Store.Monad (class MonadStore)
-import Halogen.Store.Select (selectEq)
 import Halogen.Svg.Attributes as SA
 import Halogen.Svg.Elements as SE
 import Rymden.Component.Helpers.Property (sclass)
@@ -35,14 +32,12 @@ type State
     }
 
 type Input
-  = Unit
-
-type StoreInput
-  = Connected WindowProperties Input
+  = { maxWidth :: Number
+    , maxHeight :: Number
+    }
 
 data Action
-  = Receive StoreInput
-  | Initialize
+  = Initialize
   | ClickedBorder BorderSegment
 
 data Output
@@ -57,15 +52,14 @@ height = width
 component ::
   forall query storeAction m.
   MonadEffect m =>
-  MonadStore storeAction Store m =>
   H.Component query Input Output m
-component = connect (selectEq _.window) $ H.mkComponent { initialState, render, eval }
+component = H.mkComponent { initialState, render, eval }
   where
-  initialState :: StoreInput -> State
-  initialState { context, input } =
+  initialState :: Input -> State
+  initialState input =
     { board: Nothing
-    , width: min (toNumber context.width) (toNumber context.height)
-    , height: min (toNumber context.width) (toNumber context.height)
+    , width: min input.maxWidth input.maxHeight
+    , height: min input.maxWidth input.maxHeight
     , highlightErrors: false
     }
 
@@ -391,22 +385,15 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
       centerY :: Int -> Number
       centerY row = (borderHeight + toNumber row * (borderHeight + cellHeight)) / 2.0
 
-  eval :: forall slots. H.HalogenQ query Action StoreInput ~> H.HalogenM State Action slots Output m
+  eval :: forall slots. H.HalogenQ query Action Input ~> H.HalogenM State Action slots Output m
   eval =
     H.mkEval
       $ H.defaultEval
           { handleAction = handleAction
-          , receive = Just <<< Receive
           , initialize = Just Initialize
           }
     where
     handleAction = case _ of
-      Receive input -> pure unit
-      --        H.modify_
-      --          _
-      --            { width = min (toNumber input.context.width) (toNumber input.context.height)
-      --            , height = min (toNumber input.context.width) (toNumber input.context.height)
-      --            }
       Initialize -> do
         board <- H.liftEffect $ Board.generate width height
         H.modify_ _ { board = Just board }
