@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: thomashoneyman/setup-purescript@main
+        with:
+          purescript: "0.14.3"
+          spago: "0.20.3"
+          zephyr: "0.3.2"
+          purs-tidy: "latest"
+
+      - name: Cache PureScript dependencies
+        uses: actions/cache@v2
+        with:
+          key: ${{ runner.os }}-spago-${{ hashFiles('**/*.dhall') }}
+          path: |
+            .spago
+            output
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14.x"
+          cache: "npm"
+
+      - name: Install NPM dependencies
+        run: yarn ci
+
+      - name: Build source
+        run: spago build
+
+      - name: Run tests
+        run: spago test --no-install
+
+      - name: Check formatting
+        run: purs-tidy check src test
+
+      - name: Run bundle
+        run: npm run bundle
