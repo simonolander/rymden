@@ -31,9 +31,9 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: "14.x"
-          cache: "npm"
+          cache: "yarn"
 
-      - name: Install NPM dependencies
+      - name: Install yarn dependencies
         run: yarn ci
 
       - name: Build source
@@ -46,4 +46,4 @@ jobs:
         run: purs-tidy check src test
 
       - name: Run bundle
-        run: npm run bundle
+        run: yarn bundle
