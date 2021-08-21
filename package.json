@@ -21,6 +21,7 @@
     "serve": "concurrently 'yarn build-watch' 'yarn parcel-serve'",
     "lint": "purty format src --write && purty format test --write",
     "test": "spago test",
-    "clean": "rm -rf .spago node_modules output dist .parcel-cache .purs-repl yarn-error.log"
+    "clean": "rm -rf .spago node_modules output dist .parcel-cache .purs-repl yarn-error.log",
+    "ci": "rm -rf node_modules && yarn install --frozen-lockfile"
   }
 }
