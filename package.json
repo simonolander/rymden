@@ -1,7 +1,7 @@
 {
   "name": "rymden",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "public/index.html",
   "repository": "git@github.com:simonolander/rymden.git",
   "author": "Simon Olander <simon.olander@r2m.se>",
   "license": "GPL-3.0",
@@ -22,6 +22,7 @@
     "lint": "purs-tidy format-in-place src/** test/**",
     "test": "spago test",
     "clean": "rm -rf .spago node_modules output dist .parcel-cache .purs-repl yarn-error.log",
-    "ci": "rm -rf node_modules && yarn install --frozen-lockfile"
+    "ci": "rm -rf node_modules && yarn install --frozen-lockfile",
+    "bundle": "spago bundle-app --to public/index.js && parcel build public/index.html --dist-dir dist"
   }
 }
