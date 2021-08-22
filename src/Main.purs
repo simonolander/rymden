@@ -35,6 +35,6 @@ main =
     halogenIO <- runUI rootComponent unit body
     void $ H.liftEffect
       $ matchesWith (parse Route.route) \old new ->
-          void
-            $ when (old /= Just new) do
-                launchAff_ $ halogenIO.query $ H.mkTell $ Router.Navigate new
+        void
+          $ when (old /= Just new) do
+            launchAff_ $ halogenIO.query $ H.mkTell $ Router.Navigate new

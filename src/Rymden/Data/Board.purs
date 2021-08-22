@@ -24,11 +24,12 @@ import Debug (spyWith)
 import Debug (spy)
 
 type Board
-  = { width :: Int
-    , height :: Int
-    , borderSegments :: Set BorderSegment
-    , centers :: Array GalaxyCenter
-    }
+  =
+  { width :: Int
+  , height :: Int
+  , borderSegments :: Set BorderSegment
+  , centers :: Array GalaxyCenter
+  }
 
 empty :: Int -> Int -> Board
 empty width height = { width, height, borderSegments: Set.empty, centers: [] }
@@ -40,10 +41,10 @@ toggleBorderSegment :: BorderSegment -> Board -> Board
 toggleBorderSegment borderSegment board =
   board
     { borderSegments =
-      if Set.member borderSegment board.borderSegments then
-        Set.delete borderSegment board.borderSegments
-      else
-        Set.insert borderSegment board.borderSegments
+        if Set.member borderSegment board.borderSegments then
+          Set.delete borderSegment board.borderSegments
+        else
+          Set.insert borderSegment board.borderSegments
     }
 
 getPositions :: Board -> Array Position
@@ -178,7 +179,8 @@ checkSolution board =
     componentByCenterMap =
       board.centers
         <#> _.position
-        <#> ( \(Tuple r c) -> case getConnectedComponentByPosition (Tuple (r / 2) (c / 2)) of
+        <#>
+          ( \(Tuple r c) -> case getConnectedComponentByPosition (Tuple (r / 2) (c / 2)) of
               Just component -> Just (Tuple (Tuple r c) component)
               Nothing -> Nothing
           )
@@ -278,23 +280,23 @@ getGalaxyBorder :: Galaxy -> Set BorderSegment
 getGalaxyBorder galaxy =
   Set.fromFoldable
     $ join do
-        position <- Array.fromFoldable galaxy
-        pure
-          $ Array.catMaybes
-              [ if left position `Set.member` galaxy then
-                  Nothing
-                else
-                  Just $ Tuple position (down position)
-              , if up position `Set.member` galaxy then
-                  Nothing
-                else
-                  Just $ Tuple position (right position)
-              , if right position `Set.member` galaxy then
-                  Nothing
-                else
-                  Just $ Tuple (right position) (down $ right position)
-              , if down position `Set.member` galaxy then
-                  Nothing
-                else
-                  Just $ Tuple (down position) (down $ right position)
-              ]
+      position <- Array.fromFoldable galaxy
+      pure
+        $ Array.catMaybes
+          [ if left position `Set.member` galaxy then
+              Nothing
+            else
+              Just $ Tuple position (down position)
+          , if up position `Set.member` galaxy then
+              Nothing
+            else
+              Just $ Tuple position (right position)
+          , if right position `Set.member` galaxy then
+              Nothing
+            else
+              Just $ Tuple (right position) (down $ right position)
+          , if down position `Set.member` galaxy then
+              Nothing
+            else
+              Just $ Tuple (down position) (down $ right position)
+          ]

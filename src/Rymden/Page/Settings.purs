@@ -18,11 +18,11 @@ data Action
   | ClickedConfirmClear
   | ClickedCancelClear
 
-component ::
-  forall query input output m.
-  MonadEffect m =>
-  MonadStore Store.Action Store m =>
-  H.Component query input output m
+component
+  :: forall query input output m
+   . MonadEffect m
+  => MonadStore Store.Action Store m
+  => H.Component query input output m
 component = H.mkComponent { initialState, render, eval }
   where
   initialState :: input -> State
@@ -50,7 +50,7 @@ component = H.mkComponent { initialState, render, eval }
   eval =
     H.mkEval
       $ H.defaultEval
-          { handleAction = handleAction }
+        { handleAction = handleAction }
     where
     handleAction = case _ of
       ClickedClear -> H.modify_ _ { confirmClear = true }

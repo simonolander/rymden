@@ -5,9 +5,10 @@ import Rymden.Data.Settings (Settings)
 import Rymden.Data.WindowProperties (WindowProperties)
 
 type Store
-  = { settings :: Settings
-    , window :: WindowProperties
-    }
+  =
+  { settings :: Settings
+  , window :: WindowProperties
+  }
 
 data Action
   = WindowResized Int Int
@@ -17,8 +18,8 @@ reduce store action = case action of
   WindowResized width height ->
     store
       { window =
-        store.window
-          { width = width
-          , height = height
-          }
+          store.window
+            { width = width
+            , height = height
+            }
       }

@@ -16,10 +16,11 @@ import Rymden.Data.Position (Position, down, hasFourNeighbours, hasTwoNeighbours
 import Rymden.Helper.Random (chooseOne, randomBoolean)
 
 type GalaxyCluster
-  = { width :: Int
-    , height :: Int
-    , galaxies :: Set Galaxy
-    }
+  =
+  { width :: Int
+  , height :: Int
+  , galaxies :: Set Galaxy
+  }
 
 generateCluster :: Int -> Int -> Effect GalaxyCluster
 generateCluster width height = do
@@ -31,9 +32,9 @@ generateCluster width height = do
     galaxies <-
       generateGalaxies'
         $ Set.fromFoldable do
-            row <- 0 .. (height - 1)
-            column <- 0 .. (width - 1)
-            pure $ Tuple row column
+          row <- 0 .. (height - 1)
+          column <- 0 .. (width - 1)
+          pure $ Tuple row column
     pure $ Set.fromFoldable galaxies
     where
     generateGalaxies' :: Set Position -> Effect (List Galaxy)

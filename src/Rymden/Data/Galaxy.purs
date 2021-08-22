@@ -9,6 +9,7 @@ type Galaxy
   = Set Position
 
 type GalaxyArm
-  = { p1 :: Position
-    , p2 :: Position
-    }
+  =
+  { p1 :: Position
+  , p2 :: Position
+  }

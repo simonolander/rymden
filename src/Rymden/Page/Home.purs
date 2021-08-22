@@ -16,9 +16,10 @@ import Data.Int (toNumber)
 import Rymden.Component.Helpers.Property (classes)
 
 type State
-  = { solved :: Boolean
-    , window :: WindowProperties
-    }
+  =
+  { solved :: Boolean
+  , window :: WindowProperties
+  }
 
 data Action
   = ReceiveBoardOutput Board.Output
@@ -33,14 +34,15 @@ type StoreInput
   = Connected WindowProperties Input
 
 type Slots
-  = ( board :: H.Slot Board.Query Board.Output Unit
-    )
+  =
+  ( board :: H.Slot Board.Query Board.Output Unit
+  )
 
-component ::
-  forall query output storeAction m.
-  MonadEffect m =>
-  MonadStore storeAction Store m =>
-  H.Component query Input output m
+component
+  :: forall query output storeAction m
+   . MonadEffect m
+  => MonadStore storeAction Store m
+  => H.Component query Input output m
 component = connect (selectEq _.window) $ H.mkComponent { initialState, render, eval }
   where
   initialState :: StoreInput -> State
@@ -78,7 +80,7 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
   eval =
     H.mkEval
       $ H.defaultEval
-          { handleAction = handleAction }
+        { handleAction = handleAction }
     where
     handleAction :: Action -> H.HalogenM State Action Slots output m Unit
     handleAction = case _ of

@@ -8,11 +8,12 @@ import Rymden.Data.Position (Position)
 import Data.HeytingAlgebra (not, (||))
 
 type BoardErrors
-  = { danglingBorders :: Set BorderSegment
-    , incorrectGalaxySizes :: Set Position
-    , cellsInComponentsWithoutCenter :: Set Position
-    , asymmetricCenters :: Set Position
-    }
+  =
+  { danglingBorders :: Set BorderSegment
+  , incorrectGalaxySizes :: Set Position
+  , cellsInComponentsWithoutCenter :: Set Position
+  , asymmetricCenters :: Set Position
+  }
 
 empty :: BoardErrors
 empty =
