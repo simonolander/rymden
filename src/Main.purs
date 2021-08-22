@@ -17,12 +17,13 @@ import Rymden.Capability.ManageSettings (loadSettingsFromLocalStorage)
 import Web.HTML as Web.HTML
 import Web.HTML.Window as Window
 import Effect.Console (info)
-import Rymden.Meta.Version (buildTime, version)
+import Rymden.Meta.Version (version)
+import Rymden.Meta.BuildTime (buildTime)
 
 main :: Effect Unit
-main =
+main = do
+  info $ "Build info: \nVersion: " <> version <> "\nBuild time: " <> buildTime
   HA.runHalogenAff do
-    info "Build info: \nVersion: " <> version <> "\nBuild time: " <> buildTime
     settings <- H.liftEffect loadSettingsFromLocalStorage
     windowProperties <-
       H.liftEffect do
