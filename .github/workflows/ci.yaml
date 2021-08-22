@@ -33,6 +33,12 @@ jobs:
           node-version: "14.x"
           cache: "yarn"
 
+      - name: Update build info
+        working-directory: src/Rymden/Meta
+        run: |
+          sed -i 's/develop/{{ github.sha }}/g' Version.purs
+          sed -i "s/0000-00-00T00:00:00Z/${date -u '+%Y-%m-%dT%H:%M:%SZ'}/g" BuildTime.purs
+
       - name: Install yarn dependencies
         run: yarn ci
 
