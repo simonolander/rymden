@@ -48,9 +48,19 @@ jobs:
       - name: Run bundle
         run: yarn bundle
 
-      - name: Deploy to firebase
+      - name: Deploy to development
+        if: ${{ github.event_name == 'pull_request' }}
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_RYMDEN_2EA51 }}'
+          projectId: rymden-2ea51
+
+      - name: Deploy to master
+        if: ${{ github.event_name == 'push' }}
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_RYMDEN_2EA51 }}'
+          channelId: live
           projectId: rymden-2ea51
