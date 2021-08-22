@@ -48,7 +48,7 @@ jobs:
       - name: Run bundle
         run: yarn bundle
 
-  build_and_preview:
+  preview:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
     runs-on: ubuntu-latest
     needs:
