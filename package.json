@@ -23,6 +23,6 @@
     "test": "spago test",
     "clean": "rm -rf .spago node_modules output dist .parcel-cache .purs-repl yarn-error.log",
     "ci": "rm -rf node_modules && yarn install --frozen-lockfile",
-    "bundle": "spago bundle-app --to public/index.js && parcel build public/index.html --dist-dir dist"
+    "bundle": "spago bundle-app --to public/index.js && parcel build public/index.html"
   }
 }
