@@ -12,3 +12,4 @@ output
 /.parcel-cache/
 /dist/
 /yarn-error.log
+/.firebase
