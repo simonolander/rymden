@@ -16,10 +16,13 @@ import Routing.Hash (matchesWith)
 import Rymden.Capability.ManageSettings (loadSettingsFromLocalStorage)
 import Web.HTML as Web.HTML
 import Web.HTML.Window as Window
+import Effect.Console (info)
+import Rymden.Meta.Version (buildTime, version)
 
 main :: Effect Unit
 main =
   HA.runHalogenAff do
+    info "Build info: \nVersion: " <> version <> "\nBuild time: " <> buildTime
     settings <- H.liftEffect loadSettingsFromLocalStorage
     windowProperties <-
       H.liftEffect do
