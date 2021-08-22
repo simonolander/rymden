@@ -1,7 +1,7 @@
 {
   "name": "rymden",
   "version": "1.0.0",
-  "main": "public/index.html",
+  "main": "dist/index.html",
   "repository": "git@github.com:simonolander/rymden.git",
   "author": "Simon Olander <simon.olander@r2m.se>",
   "license": "GPL-3.0",
