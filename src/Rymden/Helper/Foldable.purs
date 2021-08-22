@@ -13,21 +13,25 @@ import Data.Tuple (swap)
 count :: forall f a. Foldable f => Ord a => f a -> Map a Int
 count foldable = foldl (\map a -> Map.insertWith (+) a 1 map) Map.empty foldable
 
-mapmap ::
-  forall f g a b.
-  Functor f =>
-  Functor g =>
-  (a -> b) -> f (g a) -> f (g b)
+mapmap
+  :: forall f g a b
+   . Functor f
+  => Functor g
+  => (a -> b)
+  -> f (g a)
+  -> f (g b)
 mapmap = (<$>) <<< (<$>)
 
 infix 2 mapmap as <$$>
 
-mapmapmap ::
-  forall f g h a b.
-  Functor f =>
-  Functor g =>
-  Functor h =>
-  (a -> b) -> f (g (h a)) -> f (g (h b))
+mapmapmap
+  :: forall f g h a b
+   . Functor f
+  => Functor g
+  => Functor h
+  => (a -> b)
+  -> f (g (h a))
+  -> f (g (h b))
 mapmapmap = (<$$>) <<< (<$>)
 
 infix 2 mapmapmap as <$$$>

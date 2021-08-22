@@ -16,7 +16,8 @@ import Web.HTML.Window (localStorage)
 import Web.Storage.Storage (getItem, setItem)
 
 class
-  Monad m <= ManageSettings m where
+  Monad m <=
+  ManageSettings m where
   saveSettings :: Settings -> m Unit
 
 instance navigateHalogenM :: ManageSettings m => ManageSettings (HalogenM state action slots output m) where
@@ -31,8 +32,8 @@ loadSettingsFromLocalStorage = do
   maybeSettingsString <- getItem settingsKey storage
   pure $ fromMaybe initialSettings
     $ case maybeSettingsString of
-        Just settingsString -> hush $ decodeJson $ fromString settingsString
-        Nothing -> Nothing
+      Just settingsString -> hush $ decodeJson $ fromString settingsString
+      Nothing -> Nothing
 
 saveSettingsToLocalStorage :: Settings -> Effect Unit
 saveSettingsToLocalStorage settings = do

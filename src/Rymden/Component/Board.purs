@@ -25,16 +25,18 @@ import Rymden.Data.Store (Store)
 import Rymden.Data.WindowProperties (WindowProperties)
 
 type State
-  = { board :: Maybe Board
-    , width :: Number
-    , height :: Number
-    , highlightErrors :: Boolean
-    }
+  =
+  { board :: Maybe Board
+  , width :: Number
+  , height :: Number
+  , highlightErrors :: Boolean
+  }
 
 type Input
-  = { maxWidth :: Number
-    , maxHeight :: Number
-    }
+  =
+  { maxWidth :: Number
+  , maxHeight :: Number
+  }
 
 data Action
   = Initialize
@@ -78,14 +80,14 @@ component = H.mkComponent { initialState, render, eval }
         , sclass "board"
         ]
         $ Array.concat
-            [ outerBorders
-            , corners
-            , cells
-            , horizontalBorders
-            , verticalBorders
-            , asymetricCenterIndicators
-            , centers
-            ]
+          [ outerBorders
+          , corners
+          , cells
+          , horizontalBorders
+          , verticalBorders
+          , asymetricCenterIndicators
+          , centers
+          ]
       where
       boardErrors :: BoardErrors
       boardErrors =
@@ -124,9 +126,9 @@ component = H.mkComponent { initialState, render, eval }
             in
               String.joinWith " "
                 $ Array.catMaybes
-                    [ Just "cell"
-                    , missingCenterClass
-                    ]
+                  [ Just "cell"
+                  , missingCenterClass
+                  ]
 
       horizontalBorders :: Array (HH.HTML (H.ComponentSlot slots m Action) Action)
       horizontalBorders = do
@@ -134,13 +136,13 @@ component = H.mkComponent { initialState, render, eval }
         c <- 0 .. (board.width - 1)
         pure
           $ SE.rect
-              [ SA.width cellWidth
-              , SA.height borderHeight
-              , SA.x $ horizontalBorderOffsetX c
-              , SA.y $ horizontalBorderOffsetY r
-              , sclass $ classes r c
-              , HE.onClick $ const $ ClickedBorder $ Tuple (Tuple r c) (Tuple r (c + 1))
-              ]
+            [ SA.width cellWidth
+            , SA.height borderHeight
+            , SA.x $ horizontalBorderOffsetX c
+            , SA.y $ horizontalBorderOffsetY r
+            , sclass $ classes r c
+            , HE.onClick $ const $ ClickedBorder $ Tuple (Tuple r c) (Tuple r (c + 1))
+            ]
         where
         classes :: Int -> Int -> String
         classes row column =
@@ -162,13 +164,13 @@ component = H.mkComponent { initialState, render, eval }
         c <- 1 .. (board.width - 1)
         pure
           $ SE.rect
-              [ SA.width borderWidth
-              , SA.height cellHeight
-              , SA.x $ verticalBorderOffsetX c
-              , SA.y $ verticalBorderOffsetY r
-              , sclass $ classes r c
-              , HE.onClick $ const $ ClickedBorder $ Tuple (Tuple r c) (Tuple (r + 1) c)
-              ]
+            [ SA.width borderWidth
+            , SA.height cellHeight
+            , SA.x $ verticalBorderOffsetX c
+            , SA.y $ verticalBorderOffsetY r
+            , sclass $ classes r c
+            , HE.onClick $ const $ ClickedBorder $ Tuple (Tuple r c) (Tuple (r + 1) c)
+            ]
         where
         classes :: Int -> Int -> String
         classes row column =
@@ -295,9 +297,9 @@ component = H.mkComponent { initialState, render, eval }
             in
               String.joinWith " "
                 $ Array.catMaybes
-                    [ Just "galaxy-center"
-                    , incorrectSizeClass
-                    ]
+                  [ Just "galaxy-center"
+                  , incorrectSizeClass
+                  ]
 
       asymetricCenterIndicators :: Array (HH.HTML (H.ComponentSlot slots m Action) Action)
       asymetricCenterIndicators = renderAssymetricCenterIndicator <$> Array.fromFoldable boardErrors.asymmetricCenters
@@ -391,10 +393,10 @@ component = H.mkComponent { initialState, render, eval }
   eval =
     H.mkEval
       $ H.defaultEval
-          { handleAction = handleAction
-          , handleQuery = handleQuery
-          , initialize = Just Initialize
-          }
+        { handleAction = handleAction
+        , handleQuery = handleQuery
+        , initialize = Just Initialize
+        }
     where
     handleAction = case _ of
       Initialize -> do

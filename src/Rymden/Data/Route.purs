@@ -23,6 +23,6 @@ route :: RouteDuplex' Route
 route =
   root
     $ sum
-        { "Home": noArgs
-        , "Settings": "settings" / noArgs
-        }
+      { "Home": noArgs
+      , "Settings": "settings" / noArgs
+      }

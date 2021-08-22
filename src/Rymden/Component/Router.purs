@@ -35,17 +35,18 @@ data Action
   | Resized
 
 type Slots
-  = ( home :: H.Slot (Const Void) Void Unit
-    , settings :: H.Slot (Const Void) Void Unit
-    )
+  =
+  ( home :: H.Slot (Const Void) Void Unit
+  , settings :: H.Slot (Const Void) Void Unit
+  )
 
-component ::
-  forall input output m.
-  MonadAff m =>
-  MonadEffect m =>
-  MonadStore Store.Action Store m =>
-  Navigate m =>
-  H.Component Query input output m
+component
+  :: forall input output m
+   . MonadAff m
+  => MonadEffect m
+  => MonadStore Store.Action Store m
+  => Navigate m
+  => H.Component Query input output m
 component = H.mkComponent { initialState, render, eval }
   where
   initialState :: input -> State
@@ -81,9 +82,9 @@ component = H.mkComponent { initialState, render, eval }
         H.subscribe'
           $ const
           $ HQ.eventListener
-              (EventType "resize")
-              (Window.toEventTarget window)
-              (Just <<< const Resized)
+            (EventType "resize")
+            (Window.toEventTarget window)
+            (Just <<< const Resized)
         -- Set initial route
         initialRoute <- H.liftEffect $ hush <<< (parse Route.route) <$> getHash
         navigate $ fromMaybe Home initialRoute

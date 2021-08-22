@@ -4,6 +4,7 @@ import Prelude
 import Rymden.Data.Position (Position)
 
 type GalaxyCenter
-  = { position :: Position
-    , galaxySize :: Int
-    }
+  =
+  { position :: Position
+  , galaxySize :: Int
+  }
