@@ -1,0 +1,80 @@
+$cell-color: white;
+$border-base-color: #ddd;
+$border-base-hover-color: #999;
+$border-active-color: #444;
+$border-active-hover-color: #666;
+
+rect {
+  &.cell {
+    fill: white;
+
+    &.correct {
+      fill: #bfb;
+    }
+
+    &.missing-center {
+      fill: #fbb;
+    }
+  }
+
+  &.border {
+    cursor: pointer;
+    fill: $border-base-color;
+
+    &:hover {
+      fill: $border-base-hover-color;
+    }
+
+    &.active {
+      fill: $border-active-color;
+
+      &.dangling {
+        fill: red;
+      }
+
+      &:hover {
+        fill: $border-active-hover-color;
+      }
+    }
+  }
+}
+
+.corner {
+  fill: $border-base-color;
+
+  &.active {
+    fill: $border-active-color;
+  }
+}
+
+svg.board {
+  background-color: $border-base-color;
+}
+
+body {
+  background-color: #22124d;
+  margin: 0;
+}
+
+text.galaxy-center {
+  font-family: monospace;
+  font-size: large;
+  font-weight: bold;
+
+  &.incorrect-size {
+    fill: red;
+  }
+}
+
+circle.asymmetric-center {
+  fill: rgb(255, 194, 194);
+}
+
+.board-control-buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+.board-control-button {
+  font-family: monospace;
+}
