@@ -54,7 +54,7 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
   render :: State -> HH.HTML (H.ComponentSlot Slots m Action) Action
   render state =
     HH.div
-      []
+      [ classes "board-container" ]
       [ HH.slot _board unit Board.component boardInput ReceiveBoardOutput
       , HH.div
           [ classes "board-control-buttons" ]

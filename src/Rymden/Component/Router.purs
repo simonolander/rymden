@@ -1,6 +1,7 @@
 module Rymden.Component.Router where
 
 import Prelude
+
 import Data.Const (Const)
 import Data.Either (hush)
 import Data.Maybe (Maybe(..), fromMaybe)
@@ -13,6 +14,7 @@ import Halogen.Store.Monad (class MonadStore, updateStore)
 import Routing.Duplex (parse)
 import Routing.Hash (getHash)
 import Rymden.Capability.Navigate (class Navigate, navigate)
+import Rymden.Component.Helpers.Property (classes)
 import Rymden.Data.Route (Route(..))
 import Rymden.Data.Route as Route
 import Rymden.Data.Store (Store)
@@ -55,7 +57,7 @@ component = H.mkComponent { initialState, render, eval }
   render :: State -> HH.HTML (H.ComponentSlot Slots m Action) Action
   render state =
     HH.div
-      []
+      [ classes "main" ]
       [ case state.route of
           Just Home -> HH.slot (Proxy :: _ "home") unit Home.component unit absurd
           Just Settings -> HH.slot (Proxy :: _ "settings") unit Settings.component unit absurd

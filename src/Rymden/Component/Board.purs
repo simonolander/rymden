@@ -50,11 +50,11 @@ data Query a
 data Output
   = Solved Boolean
 
-width :: Int
-width = 10
+numberOfColumns :: Int
+numberOfColumns = 10
 
-height :: Int
-height = width
+numberOfRows :: Int
+numberOfRows = numberOfColumns
 
 component :: forall m. MonadEffect m => H.Component Query Input Output m
 component = H.mkComponent { initialState, render, eval }
@@ -62,8 +62,8 @@ component = H.mkComponent { initialState, render, eval }
   initialState :: Input -> State
   initialState input =
     { board: Nothing
-    , width: min input.maxWidth input.maxHeight
-    , height: min input.maxWidth input.maxHeight
+    , width: 1000.0
+    , height: 1000.0
     , highlightErrors: false
     }
 
@@ -75,8 +75,7 @@ component = H.mkComponent { initialState, render, eval }
     renderBoard :: Board -> HH.HTML (H.ComponentSlot slots m Action) Action
     renderBoard board =
       SE.svg
-        [ SA.width state.width
-        , SA.height state.height
+        [ SA.viewBox 0.0 0.0 state.width state.height
         , sclass "board"
         ]
         $ Array.concat
@@ -400,7 +399,7 @@ component = H.mkComponent { initialState, render, eval }
     where
     handleAction = case _ of
       Initialize -> do
-        board <- H.liftEffect $ Board.generate width height
+        board <- H.liftEffect $ Board.generate numberOfColumns numberOfRows
         H.modify_ _ { board = Just board }
         when (not BoardErrors.hasErrors $ checkSolution board) do
           H.raise $ Solved true
