@@ -29,7 +29,7 @@ type State
   { board :: Maybe Board
   , width :: Number
   , height :: Number
-  , highlightErrors :: Boolean
+  , boardErrors :: BoardErrors
   }
 
 type Input = Unit
@@ -39,7 +39,7 @@ data Action
   | ClickedBorder BorderSegment
 
 data Query a
-  = HighlightErrors Boolean a
+  = Check a
   | Undo a
   | Redo a
   | New a
@@ -62,7 +62,7 @@ component = H.mkComponent { initialState, render, eval }
     { board: Nothing
     , width: 1024.0
     , height: 1024.0
-    , highlightErrors: false
+    , boardErrors: BoardErrors.empty
     }
 
   render :: forall slots. State -> HH.HTML (H.ComponentSlot slots m Action) Action
@@ -86,13 +86,6 @@ component = H.mkComponent { initialState, render, eval }
           , centers
           ]
       where
-      boardErrors :: BoardErrors
-      boardErrors =
-        if state.highlightErrors then
-          checkSolution board
-        else
-          BoardErrors.empty
-
       cells :: Array (HH.HTML (H.ComponentSlot slots m Action) Action)
       cells = do
         row <- 0 .. (board.height - 1)
@@ -116,7 +109,7 @@ component = H.mkComponent { initialState, render, eval }
             let
               missingCenterClass :: Maybe String
               missingCenterClass =
-                if Set.member position boardErrors.cellsInComponentsWithoutCenter then
+                if Set.member position state.boardErrors.cellsInComponentsWithoutCenter then
                   Just "missing-center"
                 else
                   Nothing
@@ -148,7 +141,7 @@ component = H.mkComponent { initialState, render, eval }
             borderSegment = Tuple (Tuple row column) (Tuple row (column + 1))
           in
             if Set.member borderSegment board.borderSegments then
-              if Set.member borderSegment boardErrors.danglingBorders then
+              if Set.member borderSegment state.boardErrors.danglingBorders then
                 "border active dangling"
               else
                 "border active"
@@ -176,7 +169,7 @@ component = H.mkComponent { initialState, render, eval }
             borderSegment = Tuple (Tuple row column) (Tuple (row + 1) column)
           in
             if Set.member borderSegment board.borderSegments then
-              if Set.member borderSegment boardErrors.danglingBorders then
+              if Set.member borderSegment state.boardErrors.danglingBorders then
                 "border active dangling"
               else
                 "border active"
@@ -287,7 +280,7 @@ component = H.mkComponent { initialState, render, eval }
             let
               incorrectSizeClass :: Maybe String
               incorrectSizeClass =
-                if Set.member center.position boardErrors.incorrectGalaxySizes then
+                if Set.member center.position state.boardErrors.incorrectGalaxySizes then
                   Just "incorrect-size"
                 else
                   Nothing
@@ -299,7 +292,7 @@ component = H.mkComponent { initialState, render, eval }
                   ]
 
       asymetricCenterIndicators :: Array (HH.HTML (H.ComponentSlot slots m Action) Action)
-      asymetricCenterIndicators = renderAssymetricCenterIndicator <$> Array.fromFoldable boardErrors.asymmetricCenters
+      asymetricCenterIndicators = renderAssymetricCenterIndicator <$> Array.fromFoldable state.boardErrors.asymmetricCenters
         where
         renderAssymetricCenterIndicator center =
           SE.circle
@@ -402,14 +395,12 @@ component = H.mkComponent { initialState, render, eval }
         H.raise $ Solved true
 
     updateBoard board = do
-      let
-        boardErrors = checkSolution board
       H.modify_
         _
           { board = Just board
-          , highlightErrors = false
+          , boardErrors = BoardErrors.empty
           }
-      H.raise $ Solved $ not BoardErrors.hasErrors boardErrors
+      H.raise $ Solved false
 
     handleAction = case _ of
       Initialize -> initialize
@@ -421,8 +412,15 @@ component = H.mkComponent { initialState, render, eval }
 
     handleQuery :: forall a. Query a -> H.HalogenM State Action slots Output m (Maybe a)
     handleQuery = case _ of
-      HighlightErrors highlightErrors a -> do
-        H.modify_ _ { highlightErrors = highlightErrors }
+      Check a -> do
+        maybeBoard <- H.gets _.board
+        case maybeBoard of
+          Just board -> do
+            let
+              boardErrors = checkSolution board
+            H.modify_ _ { boardErrors = boardErrors }
+            H.raise $ Solved $ not BoardErrors.hasErrors boardErrors
+          Nothing -> pure unit
         pure $ Just a
       Undo a -> do
         pure $ Just a

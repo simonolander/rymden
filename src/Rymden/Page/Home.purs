@@ -80,7 +80,7 @@ component = H.mkComponent { initialState, render, eval }
     handleAction :: Action -> H.HalogenM State Action Slots output m Unit
     handleAction = case _ of
       ReceiveBoardOutput (Board.Solved solved) -> H.modify_ _ { solved = solved }
-      ClickedVerify -> H.tell _board unit $ Board.HighlightErrors true
+      ClickedVerify -> H.tell _board unit Board.Check
       ClickedUndo -> H.tell _board unit Board.Undo
       ClickedRedo -> H.tell _board unit Board.Redo
       ClickedNew -> do
