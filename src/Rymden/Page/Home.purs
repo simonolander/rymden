@@ -25,6 +25,7 @@ data Action
   | ClickedUndo
   | ClickedRedo
   | ClickedNew
+  | ClickedClear
 
 type Input
   = Unit
@@ -63,9 +64,8 @@ component = H.mkComponent { initialState, render, eval }
       else
         HH.div
           [ classes "board-control-buttons" ]
-          [ HH.button [ classes "board-control-button", HE.onClick $ const ClickedVerify ] [ HH.text "Display errors" ]
-          , HH.button [ classes "board-control-button", HE.onClick $ const ClickedUndo ] [ HH.text "Undo" ]
-          , HH.button [ classes "board-control-button", HE.onClick $ const ClickedRedo ] [ HH.text "Redo" ]
+          [ HH.button [ classes "board-control-button", HE.onClick $ const ClickedVerify ] [ HH.text "Check" ]
+          , HH.button [ classes "board-control-button", HE.onClick $ const ClickedClear ] [ HH.text "Clear" ]
           ]
 
   eval :: H.HalogenQ query Action Input ~> H.HalogenM State Action Slots output m
@@ -83,5 +83,6 @@ component = H.mkComponent { initialState, render, eval }
       ClickedNew -> do
         H.modify_ _ { solved = false }
         H.tell _board unit Board.New
+      ClickedClear -> H.tell _board unit Board.Clear
 
   _board = (Proxy :: _ "board")

@@ -47,6 +47,9 @@ toggleBorderSegment borderSegment board =
           Set.insert borderSegment board.borderSegments
     }
 
+clear :: Board -> Board
+clear board = board { borderSegments = Set.empty }
+
 getPositions :: Board -> Array Position
 getPositions { width, height } = do
   row <- 0 .. (height - 1)
