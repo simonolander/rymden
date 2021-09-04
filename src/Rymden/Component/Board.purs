@@ -1,6 +1,7 @@
 module Rymden.Component.Board where
 
 import Prelude
+
 import Data.Array ((..))
 import Data.Array as Array
 import Data.Int (toNumber)
@@ -15,7 +16,7 @@ import Halogen.HTML.Events as HE
 import Halogen.Svg.Attributes as SA
 import Halogen.Svg.Elements as SE
 import Rymden.Component.Helpers.Property (sclass)
-import Rymden.Data.Board (Board, checkSolution, toggleBorderSegment)
+import Rymden.Data.Board (Board, checkSolution, clear, toggleBorderSegment)
 import Rymden.Data.Board as Board
 import Rymden.Data.BoardErrors (BoardErrors)
 import Rymden.Data.BoardErrors as BoardErrors
@@ -42,6 +43,7 @@ data Query a
   | Undo a
   | Redo a
   | New a
+  | Clear a
 
 data Output
   = Solved Boolean
@@ -399,22 +401,22 @@ component = H.mkComponent { initialState, render, eval }
       when (not BoardErrors.hasErrors $ checkSolution board) do
         H.raise $ Solved true
 
+    updateBoard board = do
+      let
+        boardErrors = checkSolution board
+      H.modify_
+        _
+          { board = Just board
+          , highlightErrors = false
+          }
+      H.raise $ Solved $ not BoardErrors.hasErrors boardErrors
+
     handleAction = case _ of
       Initialize -> initialize
       ClickedBorder borderSegment -> do
         maybeBoard <- H.gets _.board
         case maybeBoard of
-          Just oldBoard -> do
-            let
-              newBoard = toggleBorderSegment borderSegment oldBoard
-
-              boardErrors = checkSolution newBoard
-            H.modify_
-              _
-                { board = Just newBoard
-                , highlightErrors = false
-                }
-            H.raise $ Solved $ not BoardErrors.hasErrors boardErrors
+          Just board -> updateBoard $ toggleBorderSegment borderSegment board
           Nothing -> pure unit
 
     handleQuery :: forall a. Query a -> H.HalogenM State Action slots Output m (Maybe a)
@@ -428,4 +430,10 @@ component = H.mkComponent { initialState, render, eval }
         pure $ Just a
       New a -> do
         initialize
+        pure $ Just a
+      Clear a -> do
+        maybeBoard <- H.gets _.board
+        case maybeBoard of
+          Just board -> updateBoard $ clear board
+          Nothing -> pure unit
         pure $ Just a
