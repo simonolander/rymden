@@ -22,7 +22,6 @@ import Rymden.Data.BoardErrors as BoardErrors
 import Rymden.Data.BorderSegment (BorderSegment)
 import Rymden.Data.Position (Position)
 import Rymden.Data.Store (Store)
-import Rymden.Data.WindowProperties (WindowProperties)
 
 type State
   =
@@ -32,11 +31,7 @@ type State
   , highlightErrors :: Boolean
   }
 
-type Input
-  =
-  { maxWidth :: Number
-  , maxHeight :: Number
-  }
+type Input = Unit
 
 data Action
   = Initialize
@@ -60,10 +55,10 @@ component :: forall m. MonadEffect m => H.Component Query Input Output m
 component = H.mkComponent { initialState, render, eval }
   where
   initialState :: Input -> State
-  initialState input =
+  initialState _ =
     { board: Nothing
-    , width: 1000.0
-    , height: 1000.0
+    , width: 1024.0
+    , height: 1024.0
     , highlightErrors: false
     }
 

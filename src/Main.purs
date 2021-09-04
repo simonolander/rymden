@@ -25,15 +25,9 @@ main = do
   info $ "Build info: \nVersion: " <> version <> "\nBuild time: " <> buildTime
   HA.runHalogenAff do
     settings <- H.liftEffect loadSettingsFromLocalStorage
-    windowProperties <-
-      H.liftEffect do
-        window <- Web.HTML.window
-        width <- Window.innerWidth window
-        height <- Window.innerHeight window
-        pure { width, height }
     let
       initialStore :: Store
-      initialStore = { settings, window: windowProperties }
+      initialStore = { settings }
     rootComponent <- runAppM initialStore Router.component
     body <- HA.awaitBody
     halogenIO <- runUI rootComponent unit body

@@ -10,7 +10,6 @@ import Halogen.Store.Monad (class MonadStore)
 import Halogen.Store.Select (selectEq)
 import Rymden.Component.Board as Board
 import Rymden.Data.Store (Store)
-import Rymden.Data.WindowProperties (WindowProperties)
 import Type.Proxy (Proxy(..))
 import Data.Int (toNumber)
 import Rymden.Component.Helpers.Property (classes)
@@ -18,7 +17,6 @@ import Rymden.Component.Helpers.Property (classes)
 type State
   =
   { solved :: Boolean
-  , window :: WindowProperties
   }
 
 data Action
@@ -30,9 +28,6 @@ data Action
 type Input
   = Unit
 
-type StoreInput
-  = Connected WindowProperties Input
-
 type Slots
   =
   ( board :: H.Slot Board.Query Board.Output Unit
@@ -43,19 +38,18 @@ component
    . MonadEffect m
   => MonadStore storeAction Store m
   => H.Component query Input output m
-component = connect (selectEq _.window) $ H.mkComponent { initialState, render, eval }
+component = H.mkComponent { initialState, render, eval }
   where
-  initialState :: StoreInput -> State
-  initialState { context } =
+  initialState :: Input -> State
+  initialState _ =
     { solved: false
-    , window: context
     }
 
   render :: State -> HH.HTML (H.ComponentSlot Slots m Action) Action
   render state =
     HH.div
       [ classes "board-container" ]
-      [ HH.slot _board unit Board.component boardInput ReceiveBoardOutput
+      [ HH.slot _board unit Board.component unit ReceiveBoardOutput
       , HH.div
           [ classes "board-control-buttons" ]
           [ HH.button [ classes "board-control-button", HE.onClick $ const ClickedVerify ] [ HH.text "Verify" ]
@@ -63,20 +57,8 @@ component = connect (selectEq _.window) $ H.mkComponent { initialState, render, 
           , HH.button [ classes "board-control-button", HE.onClick $ const ClickedRedo ] [ HH.text "Redo" ]
           ]
       ]
-    where
-    boardMaxWidth :: Number
-    boardMaxWidth = toNumber state.window.width
 
-    boardMaxHeight :: Number
-    boardMaxHeight = toNumber state.window.height
-
-    boardInput :: Board.Input
-    boardInput =
-      { maxWidth: boardMaxWidth
-      , maxHeight: boardMaxHeight
-      }
-
-  eval :: H.HalogenQ query Action StoreInput ~> H.HalogenM State Action Slots output m
+  eval :: H.HalogenQ query Action Input ~> H.HalogenM State Action Slots output m
   eval =
     H.mkEval
       $ H.defaultEval

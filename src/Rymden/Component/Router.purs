@@ -34,7 +34,6 @@ data Query a
 
 data Action
   = Initialize
-  | Resized
 
 type Slots
   =
@@ -79,25 +78,8 @@ component = H.mkComponent { initialState, render, eval }
     handleAction :: Action -> H.HalogenM State Action Slots output m Unit
     handleAction action = case action of
       Initialize -> do
-        -- Subscribe to window resize events
-        window <- H.liftEffect Web.HTML.window
-        H.subscribe'
-          $ const
-          $ HQ.eventListener
-            (EventType "resize")
-            (Window.toEventTarget window)
-            (Just <<< const Resized)
-        -- Set initial route
         initialRoute <- H.liftEffect $ hush <<< (parse Route.route) <$> getHash
         navigate $ fromMaybe Home initialRoute
-      Resized -> do
-        { width, height } <-
-          H.liftEffect do
-            window <- Web.HTML.window
-            width <- Window.innerWidth window
-            height <- Window.innerHeight window
-            pure { width, height }
-        updateStore $ Store.WindowResized width height
 
     handleQuery :: forall a. Query a -> H.HalogenM State Action Slots output m (Maybe a)
     handleQuery query = case query of
