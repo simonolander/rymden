@@ -24,6 +24,7 @@ data Action
   | ClickedVerify
   | ClickedUndo
   | ClickedRedo
+  | ClickedNew
 
 type Input
   = Unit
@@ -50,13 +51,22 @@ component = H.mkComponent { initialState, render, eval }
     HH.div
       [ classes "board-container" ]
       [ HH.slot _board unit Board.component unit ReceiveBoardOutput
-      , HH.div
-          [ classes "board-control-buttons" ]
-          [ HH.button [ classes "board-control-button", HE.onClick $ const ClickedVerify ] [ HH.text "Verify" ]
-          , HH.button [ classes "board-control-button", HE.onClick $ const ClickedUndo ] [ HH.text "Undo" ]
-          , HH.button [ classes "board-control-button", HE.onClick $ const ClickedRedo ] [ HH.text "Redo" ]
-          ]
+      , renderButtons
       ]
+    where
+    renderButtons =
+      if state.solved then
+        HH.div
+                  [ classes "board-control-buttons" ]
+                  [ HH.button [ classes "board-control-button", HE.onClick $ const ClickedNew ] [ HH.text "New game" ]
+                  ]
+      else
+        HH.div
+                  [ classes "board-control-buttons" ]
+                  [ HH.button [ classes "board-control-button", HE.onClick $ const ClickedVerify ] [ HH.text "Display errors" ]
+--                  , HH.button [ classes "board-control-button", HE.onClick $ const ClickedUndo ] [ HH.text "Undo" ]
+--                  , HH.button [ classes "board-control-button", HE.onClick $ const ClickedRedo ] [ HH.text "Redo" ]
+                  ]
 
   eval :: H.HalogenQ query Action Input ~> H.HalogenM State Action Slots output m
   eval =
@@ -70,5 +80,8 @@ component = H.mkComponent { initialState, render, eval }
       ClickedVerify -> H.tell _board unit $ Board.HighlightErrors true
       ClickedUndo -> H.tell _board unit Board.Undo
       ClickedRedo -> H.tell _board unit Board.Redo
+      ClickedNew -> do
+        H.modify_ _ { solved = false }
+        H.tell _board unit Board.New
 
   _board = (Proxy :: _ "board")

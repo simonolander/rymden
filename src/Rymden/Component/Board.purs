@@ -41,6 +41,7 @@ data Query a
   = HighlightErrors Boolean a
   | Undo a
   | Redo a
+  | New a
 
 data Output
   = Solved Boolean
@@ -392,12 +393,14 @@ component = H.mkComponent { initialState, render, eval }
         , initialize = Just Initialize
         }
     where
+    initialize = do
+      board <- H.liftEffect $ Board.generate numberOfColumns numberOfRows
+      H.modify_ _ { board = Just board }
+      when (not BoardErrors.hasErrors $ checkSolution board) do
+        H.raise $ Solved true
+
     handleAction = case _ of
-      Initialize -> do
-        board <- H.liftEffect $ Board.generate numberOfColumns numberOfRows
-        H.modify_ _ { board = Just board }
-        when (not BoardErrors.hasErrors $ checkSolution board) do
-          H.raise $ Solved true
+      Initialize -> initialize
       ClickedBorder borderSegment -> do
         maybeBoard <- H.gets _.board
         case maybeBoard of
@@ -422,4 +425,7 @@ component = H.mkComponent { initialState, render, eval }
       Undo a -> do
         pure $ Just a
       Redo a -> do
+        pure $ Just a
+      New a -> do
+        initialize
         pure $ Just a
