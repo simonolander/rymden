@@ -271,7 +271,7 @@ component = H.mkComponent { initialState, render, eval }
             [ SA.x $ centerX column
             , SA.y $ centerY row
             , SA.text_anchor SA.AnchorMiddle
-            , SA.dominant_baseline SA.BaselineMiddle
+            , SA.dominant_baseline SA.Central
             , sclass classes
             ]
             [ HH.text $ show center.galaxySize ]
