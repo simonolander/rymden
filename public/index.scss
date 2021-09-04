@@ -78,15 +78,22 @@ circle.asymmetric-center {
 }
 
 .board-control-buttons {
+  margin: 20px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  gap: 10px;
+
+  @media (orientation: landscape) {
+    justify-content: center;
+  }
 }
 
 .board-control-button {
   font-family: monospace;
   flex-grow: 1;
-  max-height: 256px;
+  max-height: 64px;
+  font-size: 24px;
 }
 
 .board-container {

@@ -47,7 +47,7 @@ data Output
   = Solved Boolean
 
 numberOfColumns :: Int
-numberOfColumns = 10
+numberOfColumns = 5
 
 numberOfRows :: Int
 numberOfRows = numberOfColumns
