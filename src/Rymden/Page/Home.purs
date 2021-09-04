@@ -59,7 +59,10 @@ component = H.mkComponent { initialState, render, eval }
       if state.solved then
         HH.div
           [ classes "board-control-buttons" ]
-          [ HH.button [ classes "board-control-button", HE.onClick $ const ClickedNew ] [ HH.text "New game" ]
+          [ HH.p
+              [ classes "celebration-text" ]
+              [ HH.text "Well done!" ]
+          , HH.button [ classes "board-control-button", HE.onClick $ const ClickedNew ] [ HH.text "New game" ]
           ]
       else
         HH.div
