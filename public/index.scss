@@ -20,6 +20,7 @@ rect {
   &.border {
     cursor: pointer;
     fill: $border-base-color;
+    touch-action: manipulation;
 
     &:hover {
       fill: $border-base-hover-color;
