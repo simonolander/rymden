@@ -80,10 +80,10 @@ component = H.mkComponent { initialState, render, eval }
           [ outerBorders
           , corners
           , cells
-          , horizontalBorders
-          , verticalBorders
           , asymetricCenterIndicators
           , centers
+          , verticalBorders
+          , horizontalBorders
           ]
       where
       cells :: Array (HH.HTML (H.ComponentSlot slots m Action) Action)
@@ -125,15 +125,32 @@ component = H.mkComponent { initialState, render, eval }
         r <- 1 .. (board.height - 1)
         c <- 0 .. (board.width - 1)
         pure
-          $ SE.rect
-            [ SA.width cellWidth
-            , SA.height borderHeight
-            , SA.x $ horizontalBorderOffsetX c
-            , SA.y $ horizontalBorderOffsetY r
-            , sclass $ classes r c
+          $ SE.g
+            [ sclass "border-group"
             , HE.onClick $ const $ ClickedBorder $ Tuple (Tuple r c) (Tuple r (c + 1))
             ]
+            [ SE.path
+                [ SA.d
+                    [ SA.m SA.Abs (horizontalBorderOffsetX c - borderHeight / 2.0) (horizontalBorderOffsetY r + borderHeight / 2.0)
+                    , SA.l SA.Rel hoverAreaHalfWidth (-hoverAreaHalfHeight)
+                    , SA.l SA.Rel hoverAreaHalfWidth hoverAreaHalfHeight
+                    , SA.l SA.Rel (-hoverAreaHalfWidth) hoverAreaHalfHeight
+                    , SA.z
+                    ]
+                , sclass "border-hover-area"
+                ]
+            , SE.rect
+                [ SA.width cellWidth
+                , SA.height borderHeight
+                , SA.x $ horizontalBorderOffsetX c
+                , SA.y $ horizontalBorderOffsetY r
+                , sclass $ classes r c
+                ]
+            ]
         where
+        hoverAreaHalfWidth = (cellWidth + borderWidth) / 2.0
+        hoverAreaHalfHeight = (cellHeight + borderHeight) / 2.0
+
         classes :: Int -> Int -> String
         classes row column =
           let
@@ -153,15 +170,32 @@ component = H.mkComponent { initialState, render, eval }
         r <- 0 .. (board.height - 1)
         c <- 1 .. (board.width - 1)
         pure
-          $ SE.rect
-            [ SA.width borderWidth
-            , SA.height cellHeight
-            , SA.x $ verticalBorderOffsetX c
-            , SA.y $ verticalBorderOffsetY r
-            , sclass $ classes r c
+          $ SE.g
+            [ sclass "border-group"
             , HE.onClick $ const $ ClickedBorder $ Tuple (Tuple r c) (Tuple (r + 1) c)
             ]
+            [ SE.path
+                [ SA.d
+                    [ SA.m SA.Abs (verticalBorderOffsetX c + borderWidth / 2.0) (verticalBorderOffsetY r - borderHeight / 2.0)
+                    , SA.l SA.Rel hoverAreaHalfWidth hoverAreaHalfHeight
+                    , SA.l SA.Rel (-hoverAreaHalfWidth) hoverAreaHalfHeight
+                    , SA.l SA.Rel (-hoverAreaHalfWidth) (-hoverAreaHalfHeight)
+                    , SA.z
+                    ]
+                , sclass "border-hover-area"
+                ]
+            , SE.rect
+                [ SA.width borderWidth
+                , SA.height cellHeight
+                , SA.x $ verticalBorderOffsetX c
+                , SA.y $ verticalBorderOffsetY r
+                , sclass $ classes r c
+                ]
+            ]
         where
+        hoverAreaHalfWidth = (cellWidth + borderWidth) / 2.0
+        hoverAreaHalfHeight = (cellHeight + borderHeight) / 2.0
+
         classes :: Int -> Int -> String
         classes row column =
           let

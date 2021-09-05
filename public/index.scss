@@ -18,22 +18,26 @@ rect {
   }
 
   &.border {
-    cursor: pointer;
-    fill: $border-base-color;
-    touch-action: manipulation;
-
-    &:hover {
-      fill: $border-base-hover-color;
-    }
-
     &.active {
       fill: $border-active-color;
 
       &.dangling {
         fill: red;
       }
+    }
+  }
+}
 
-      &:hover {
+.border-group {
+  cursor: pointer;
+  fill: transparent;
+  touch-action: manipulation;
+
+  &:hover {
+    > .border {
+      fill: $border-base-hover-color;
+
+      &.active {
         fill: $border-active-hover-color;
       }
     }
