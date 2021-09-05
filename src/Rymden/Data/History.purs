@@ -1,4 +1,4 @@
-module Rymden.Data.History (History, singleton, append, back, forward, current, hasPast, hasFuture) where
+module Rymden.Data.History (History, singleton, append, append', back, forward, current, hasPast, hasFuture) where
 
 import Prelude
 
@@ -61,3 +61,13 @@ singleton current =
 append :: forall a. a -> History a -> History a
 append current (History h) =
   History $ h { past = h.current : h.past, current = current, future = Nil }
+
+append' :: forall a. Eq a => (a -> a) -> History a -> History a
+append' updateFunction history =
+  let
+    old = current history
+    new = updateFunction old
+  in
+    if old /= new then
+      append new history
+    else history
