@@ -48,8 +48,8 @@ jobs:
       - name: Run tests
         run: spago test --no-install
 
-      - name: Check formatting
-        run: purs-tidy check src test
+#      - name: Check formatting
+#        run: purs-tidy check src test
 
       - name: Run bundle
         run: yarn bundle
