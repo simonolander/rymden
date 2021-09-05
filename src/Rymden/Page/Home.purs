@@ -68,6 +68,7 @@ component = H.mkComponent { initialState, render, eval }
         HH.div
           [ classes "board-control-buttons" ]
           [ HH.button [ classes "board-control-button", HE.onClick $ const ClickedVerify ] [ HH.text "Check" ]
+          , HH.button [ classes "board-control-button", HE.onClick $ const ClickedUndo ] [ HH.text "Undo" ]
           , HH.button [ classes "board-control-button", HE.onClick $ const ClickedClear ] [ HH.text "Clear" ]
           ]
 
