@@ -23,10 +23,12 @@ import Rymden.Data.BoardErrors as BoardErrors
 import Rymden.Data.BorderSegment (BorderSegment)
 import Rymden.Data.Position (Position)
 import Rymden.Data.Store (Store)
+import Rymden.Data.History (History)
+import Rymden.Data.History as History
 
 type State
   =
-  { board :: Maybe Board
+  { boardHistory :: Maybe (History Board)
   , width :: Number
   , height :: Number
   , boardErrors :: BoardErrors
@@ -59,15 +61,15 @@ component = H.mkComponent { initialState, render, eval }
   where
   initialState :: Input -> State
   initialState _ =
-    { board: Nothing
+    { boardHistory: Nothing
     , width: 1024.0
     , height: 1024.0
     , boardErrors: BoardErrors.empty
     }
 
   render :: forall slots. State -> HH.HTML (H.ComponentSlot slots m Action) Action
-  render state = case state.board of
-    Just board -> renderBoard board
+  render state = case state.boardHistory of
+    Just boardHistory -> renderBoard $ History.current boardHistory
     Nothing -> HH.div_ [ HH.text "Loading..." ]
     where
     renderBoard :: Board -> HH.HTML (H.ComponentSlot slots m Action) Action
@@ -424,39 +426,41 @@ component = H.mkComponent { initialState, render, eval }
     where
     initialize = do
       board <- H.liftEffect $ Board.generate numberOfColumns numberOfRows
-      H.modify_ _ { board = Just board }
+      H.modify_ _ { boardHistory = Just $ History.singleton board }
       when (not BoardErrors.hasErrors $ checkSolution board) do
         H.raise $ Solved true
 
-    updateBoard board = do
-      H.modify_
-        _
-          { board = Just board
-          , boardErrors = BoardErrors.empty
-          }
-      H.raise $ Solved false
+    updateBoardHistory updateFunction = do
+      maybeBoardHistory <- H.gets _.boardHistory
+      case maybeBoardHistory of
+        Just boardHistory -> do
+          H.modify_
+            _
+              { boardHistory = Just $ updateFunction boardHistory
+              , boardErrors = BoardErrors.empty
+              }
+          H.raise $ Solved false
+        Nothing -> pure unit
 
     handleAction = case _ of
       Initialize -> initialize
-      ClickedBorder borderSegment -> do
-        maybeBoard <- H.gets _.board
-        case maybeBoard of
-          Just board -> updateBoard $ toggleBorderSegment borderSegment board
-          Nothing -> pure unit
+      ClickedBorder borderSegment -> updateBoardHistory (History.append' (toggleBorderSegment borderSegment))
 
     handleQuery :: forall a. Query a -> H.HalogenM State Action slots Output m (Maybe a)
     handleQuery = case _ of
       Check a -> do
-        maybeBoard <- H.gets _.board
-        case maybeBoard of
-          Just board -> do
+        maybeBoardHistory <- H.gets _.boardHistory
+        case maybeBoardHistory of
+          Just boardHistory -> do
             let
+              board = History.current boardHistory
               boardErrors = checkSolution board
             H.modify_ _ { boardErrors = boardErrors }
             H.raise $ Solved $ not BoardErrors.hasErrors boardErrors
           Nothing -> pure unit
         pure $ Just a
       Undo a -> do
+        updateBoardHistory History.back
         pure $ Just a
       Redo a -> do
         pure $ Just a
@@ -464,8 +468,5 @@ component = H.mkComponent { initialState, render, eval }
         initialize
         pure $ Just a
       Clear a -> do
-        maybeBoard <- H.gets _.board
-        case maybeBoard of
-          Just board -> updateBoard $ clear board
-          Nothing -> pure unit
+        updateBoardHistory $ History.append' clear
         pure $ Just a
