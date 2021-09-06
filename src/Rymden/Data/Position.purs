@@ -39,3 +39,9 @@ hasLeftRight availablePositions position = Set.member (left position) availableP
 
 hasUpDown :: Set Position -> Position -> Boolean
 hasUpDown availablePositions position = Set.member (up position) availablePositions && Set.member (down position) availablePositions
+
+hasSquare :: Set Position -> Position -> Boolean
+hasSquare availablePositions position =
+  Set.member (right position) availablePositions
+    && Set.member (down position) availablePositions
+    && Set.member (down (right position)) availablePositions

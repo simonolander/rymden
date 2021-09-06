@@ -22,6 +22,9 @@ import Rymden.Helper.Foldable ((<$$>), (<$$$>))
 import Rymden.Helper.Foldable (inverseMap)
 import Debug (spyWith)
 import Debug (spy)
+import Rymden.Data.GalaxyCenter (getGalaxyCenterPosition)
+import Rymden.Data.GalaxyCenter (reflectCell)
+import Rymden.Data.GalaxyCluster (generateGalaxies)
 
 type Board
   =
@@ -35,7 +38,7 @@ empty :: Int -> Int -> Board
 empty width height = { width, height, borderSegments: Set.empty, centers: [] }
 
 generate :: Int -> Int -> Effect Board
-generate width height = fromGalaxyCluster <$> generateCluster width height
+generate width height = debugFromGalaxies <$> generateGalaxies width height
 
 toggleBorderSegment :: BorderSegment -> Board -> Board
 toggleBorderSegment borderSegment board =
@@ -216,18 +219,7 @@ checkSolution board =
     asymmetricCenters = Set.fromFoldable $ Array.filter isAsymmetrical $ _.position <$> board.centers
       where
       isAsymmetrical center = case Map.lookup center componentByCenterMap of
-        Just component ->
-          let
-            cr :: Int
-            cr = fst center
-
-            cc :: Int
-            cc = snd center
-
-            reflectCell :: Position -> Position
-            reflectCell (Tuple r c) = Tuple (cr - r - 1) (cc - c - 1)
-          in
-            Set.map reflectCell component /= component
+        Just component -> Set.map (reflectCell center) component /= component
         Nothing -> false
   in
     { danglingBorders
@@ -236,43 +228,47 @@ checkSolution board =
     , asymmetricCenters
     }
 
-debugFromGalaxyCluster :: GalaxyCluster -> Board
-debugFromGalaxyCluster cluster = (fromGalaxyCluster cluster) { borderSegments = Set.unions $ getGalaxyBorder <$> Array.fromFoldable cluster.galaxies }
+debugFromGalaxies :: Set Galaxy -> Board
+debugFromGalaxies galaxies = (fromGalaxies galaxies) { borderSegments = Set.unions $ getGalaxyBorder <$> Array.fromFoldable galaxies }
 
-fromGalaxyCluster :: GalaxyCluster -> Board
-fromGalaxyCluster cluster =
-  { width: cluster.width
-  , height: cluster.height
-  , centers: getGalaxyCenter <$> Array.fromFoldable cluster.galaxies
-  , borderSegments: Set.empty
-  }
+fromGalaxies :: Set Galaxy -> Board
+fromGalaxies galaxies =
+  let
+    galaxyArray :: Array Galaxy
+    galaxyArray = Array.fromFoldable galaxies
+
+    positions :: Array Position
+    positions = Array.concatMap Array.fromFoldable galaxyArray
+
+    rows :: Array Int
+    rows = Array.nub $ fst <$> positions
+
+    height :: Int
+    height = fromMaybe 0 do
+      maxCol <- maximum columns
+      minCol <- minimum columns
+      pure $ maxCol - minCol + 1
+
+    columns :: Array Int
+    columns = Array.nub $ snd <$> positions
+
+    width :: Int
+    width = fromMaybe 0 do
+      maxRow <- maximum rows
+      minRow <- minimum rows
+      pure $ maxRow - minRow + 1
+  in
+    { width
+    , height
+    , centers: getGalaxyCenter <$> galaxyArray
+    , borderSegments: Set.empty
+    }
 
 getGalaxyCenter :: Galaxy -> GalaxyCenter
 getGalaxyCenter galaxy =
   let
-    galaxyPositions :: Array Position
-    galaxyPositions = Array.fromFoldable galaxy
-
-    minRow :: Int
-    minRow = fromMaybe 0 $ minimum $ fst <$> galaxyPositions
-
-    maxRow :: Int
-    maxRow = fromMaybe 0 $ maximum $ fst <$> galaxyPositions
-
-    minColumn :: Int
-    minColumn = fromMaybe 0 $ minimum $ snd <$> galaxyPositions
-
-    maxColumn :: Int
-    maxColumn = fromMaybe 0 $ maximum $ snd <$> galaxyPositions
-
-    centerRow :: Int
-    centerRow = maxRow + minRow + 1
-
-    centerColumn :: Int
-    centerColumn = maxColumn + minColumn + 1
-
     position :: Position
-    position = Tuple centerRow centerColumn
+    position = getGalaxyCenterPosition galaxy
 
     galaxySize :: Int
     galaxySize = Set.size galaxy
