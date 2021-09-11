@@ -334,7 +334,7 @@ component = H.mkComponent { initialState, render, eval }
           SE.circle
             [ SA.cx $ centerX $ snd center
             , SA.cy $ centerY $ fst center
-            , SA.r $ (cellWidth + cellHeight) / 8.0
+            , SA.r $ (cellWidth + cellHeight) / 7.0
             , sclass "asymmetric-center"
             ]
 
