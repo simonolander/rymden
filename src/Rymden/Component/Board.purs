@@ -243,10 +243,10 @@ component = H.mkComponent { initialState, render, eval }
         pure
           if hasNeighbourLeft && hasNeighbourRight || hasNeighbourUp && hasNeighbourDown then
             SE.rect
-              [ SA.width $ borderWidth + 1.0
-              , SA.height $ borderHeight + 1.0
-              , SA.x $ cornerOffsetX c - 0.5
-              , SA.y $ cornerOffsetY r - 0.5
+              [ SA.width $ borderWidth + 0.2
+              , SA.height $ borderHeight + 0.2
+              , SA.x $ cornerOffsetX c - 0.1
+              , SA.y $ cornerOffsetY r - 0.1
               , sclass "corner active"
               ]
           else if hasNeighbourLeft && hasNeighbourUp then
