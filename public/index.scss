@@ -9,6 +9,7 @@ $galaxy-center-text-incorrect-color: #ff7623;
 $galaxy-center-text-base-color: white;
 $asymmetric-center-circle-color: #9f6666;
 $celebration-text-color: white;
+$ui-text-font-family: sans-serif;
 
 rect {
   &.cell {
@@ -102,7 +103,7 @@ circle.asymmetric-center {
 }
 
 .board-control-button {
-  font-family: monospace;
+  font-family: $ui-text-font-family;
   flex-grow: 1;
   max-height: 64px;
   font-size: 24px;
@@ -122,7 +123,7 @@ circle.asymmetric-center {
 
 .celebration-text {
   color: $celebration-text-color;
-  font-family: monospace;
+  font-family: $ui-text-font-family;
   font-size: 24px;
   text-align: center;
 }
