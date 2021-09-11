@@ -1,12 +1,18 @@
-$cell-color: white;
-$border-base-color: #ddd;
-$border-base-hover-color: #999;
-$border-active-color: #444;
-$border-active-hover-color: #666;
+$cell-color: #003055;
+$border-base-color: #051943;
+$border-base-hover-color: #248092;
+$border-active-color: #e2cdb1; // TODO maybe make darker
+$border-active-hover-color: #248092;
+$border-dangling-color: #584e82;
+$main-background-color: #051943;
+$galaxy-center-text-incorrect-color: red;
+$galaxy-center-text-base-color: white;
+$asymmetric-center-circle-color: #ffc2c2;
+$celebration-text-color: white;
 
 rect {
   &.cell {
-    fill: white;
+    fill: $cell-color;
 
     &.correct {
       fill: #bfb;
@@ -22,7 +28,7 @@ rect {
       fill: $border-active-color;
 
       &.dangling {
-        fill: red;
+        fill: $border-dangling-color;
       }
     }
   }
@@ -57,7 +63,7 @@ svg.board {
 }
 
 body {
-  background-color: #22124d;
+  background-color: $main-background-color;
   margin: 0;
   width: 100vw;
   height: 100vh;
@@ -72,14 +78,15 @@ text.galaxy-center {
   font-family: monospace;
   font-size: 32px;
   font-weight: bold;
+  fill: $galaxy-center-text-base-color;
 
   &.incorrect-size {
-    fill: red;
+    fill: $galaxy-center-text-incorrect-color;
   }
 }
 
 circle.asymmetric-center {
-  fill: rgb(255, 194, 194);
+  fill: $asymmetric-center-circle-color;
 }
 
 .board-control-buttons {
@@ -114,7 +121,7 @@ circle.asymmetric-center {
 }
 
 .celebration-text {
-  color: white;
+  color: $celebration-text-color;
   font-family: monospace;
   font-size: 24px;
   text-align: center;
